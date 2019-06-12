@@ -1,0 +1,114 @@
+/*!
+ * AngularJS extended select component.
+ * Copyright (c) 2016-2019 Rodziu <mateusz.rohde@gmail.com>
+ * License: MIT
+ */
+@import "../../node_modules/bootstrap/scss/functions";
+@import "../../node_modules/bootstrap/scss/variables";
+
+extended-select {
+  &.custom-select-lg, &.custom-select-sm {
+    padding: 0;
+  }
+}
+.angular-extended-select {
+  cursor: default !important;
+  height: auto;
+  text-align: left;
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Chrome/Safari/Opera */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently
+                                  not supported by any browser */
+  &.show {
+    border-color: #66afe9;
+    outline: 0;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
+  }
+  > .deselect {
+    position: absolute;
+    top: 3px;
+    right: 25px;
+    font-weight: bold; font-size: 20px;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  &.custom-select-sm > .deselect {
+    top: 1px;
+  }
+  &.custom-select-lg > .deselect {
+    top: 8px;
+  }
+  .ext-select-loading {
+    position: absolute;
+    top: 20px;
+    right: 15px;
+  }
+  .input-group > .ext-select-loading {
+    top: 11px;
+    right: 65px;
+    z-index: 10;
+  }
+  > .extended-select-multiple {
+    list-style: none; padding: 0; margin: 0; width: calc(100% - 15px);
+    .label { cursor: pointer; }
+    > li {
+      float: left;
+      margin: 0 3px 2px 0;
+      &.ext-select-choice {
+        border: 1px solid #ccc;
+        -webkit-border-radius: 4px; -moz-border-radius: 4px; border-radius: 4px;
+        padding: 0 5px;
+        > button {
+          position: relative;
+          right: -2px;
+          top: 4px;
+          font-size: 18px;
+        }
+      }
+      > input {
+        border: 0 none; padding: 0; cursor: default; background: transparent;
+      }
+    }
+  }
+  > .dropdown-menu {
+    width: calc(100% + 2px);
+    margin: 0 0 0 -1px;
+    > div {
+      padding: 4px 8px;
+    }
+    > .dropdown-menu {
+      -webkit-border-radius: 0;
+      -moz-border-radius: 0;
+      border-radius: 0;
+      border: 0 none;
+      padding: 0;
+      float: none;
+      position: relative;
+      max-height: 30vh;
+      overflow-y: auto;
+      overflow-x: hidden;
+      > li.dropdown-item {
+        padding: .25rem;
+        &.selected > a {
+          background: transparent !important;
+          color: #ccc;
+        }
+        > a {
+          padding: 3px 10px;
+          cursor: default;
+          white-space: normal;
+        }
+      }
+    }
+  }
+  &[disabled] {
+    color: $custom-select-disabled-color;
+    background-color: $custom-select-disabled-bg;
+  }
+}
+.form-inline .angular-extended-select {
+  min-width: 200px;
+}

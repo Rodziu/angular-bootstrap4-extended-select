@@ -1,0 +1,224 @@
+<!--
+  ~ AngularJS extended select component.
+  ~ Copyright (c) 2016-2019 Rodziu <mateusz.rohde@gmail.com>
+  ~ License: MIT
+  -->
+<!DOCTYPE html>
+<html lang="en" data-ng-app="exampleApp">
+<head>
+	<meta charset="UTF-8">
+	<title>AngularJS Extended Select plugin</title>
+	<link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css"/>
+	<link rel="stylesheet" href="../node_modules/font-awesome/css/font-awesome.min.css"/>
+	<link rel="stylesheet" href="../dist/angularjs-bootstrap4-extended-select.css"/>
+	<style type="text/css">
+		[ng-cloak] {
+			display: none;
+		}
+		h3.page-header, h4.page-header {
+			padding-top: 30px;
+			padding-bottom: 9px;
+			margin: 0 0 20px;
+			border-bottom: 1px solid #eee;
+		}
+		code-example {
+			display: block;
+			margin-top: 10px;
+		}
+		code-example > p {
+			margin: 0;
+		}
+		code-example > code {
+			display: block;
+		}
+		pre {
+			margin: 0;
+		}
+		a[ng-click] { cursor: pointer; }
+		.form-text {
+			margin-bottom: 0;
+		}
+	</style>
+</head>
+<body>
+<div class="container-fluid" ng-cloak>
+	<div class="row">
+		<div class="col-md-3 col-xl-2">
+			<ul class="nav flex-column sticky-top mt-4">
+				<li class="nav-item" ng-repeat="n in $root.nav">
+					<a class="nav-link" href="#{{::n.id}}">{{::n.title}}</a>
+					<ul ng-if="n.subs.length">
+						<li ng-repeat="s in n.subs">
+							<a class="nav-link" href="#{{::s.id}}">{{::s.title}}</a>
+						</li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+		<div class="col-md-9 col-xl-10 mb-5" data-ng-controller="exampleCtrl as vm">
+			<h4 class="page-header" id="basic-example">Basic example</h4>
+			<div class="card">
+				<div class="card-body row">
+					<div class="col-sm-6 form-group">
+						<label>Without extended-select</label>
+						<select class="form-control" ng-model="vm.word" code-example-hook
+								ng-options="o as o.word for o in vm.options"></select>
+					</div>
+					<div class="col-sm-6 form-group">
+						<label>With extended-select</label>
+						<extended-select ng-model="vm.word" ng-options="o as o.word for o in vm.options"
+										 code-example-hook
+						></extended-select>
+					</div>
+				</div>
+				<div class="card-footer">
+					Model value:
+					<pre>{{vm.word|json}}</pre>
+				</div>
+			</div>
+			<h4 class="page-header" id="multiple-select">Multiple select</h4>
+			<div class="card">
+				<div class="card-body row">
+					<div class="col-sm-6 form-group">
+						<label>Without extended-select</label>
+						<select class="form-control" ng-model="vm.multiple" code-example-hook
+								ng-options="o as o.word for o in vm.options" multiple>
+						</select>
+					</div>
+					<div class="col-sm-6 form-group">
+						<label>With extended-select</label>
+						<extended-select ng-model="vm.multiple" ng-options="o as o.word for o in vm.options" multiple
+										 code-example-hook>
+						</extended-select>
+					</div>
+				</div>
+				<div class="card-footer">
+					Model value:
+					<pre>{{vm.multiple|json}}</pre>
+				</div>
+			</div>
+			<h4 class="page-header" id="options">Options</h4>
+			<div class="row mb-3">
+				<div class="col-sm-6">
+					<div class="card">
+						<div class="card-header" id="custom-placeholder">Custom placeholder</div>
+						<div class="card-body">
+							<extended-select ng-model="vm.word2" ng-options="o as o.word for o in vm.shortOptions"
+											 placeholder="Custom placeholder text"
+											 code-example-hook></extended-select>
+						</div>
+					</div>
+				</div>
+				<div class="col-sm-6">
+					<div class="card">
+						<div class="card-header" id="custom-placeholder2">
+							Begin option filtering after typing 2 chars
+						</div>
+						<div class="card-body">
+							<extended-select ng-model="vm.word3" ng-options="o as o.word for o in vm.shortOptions"
+											 type-to-search="2"
+											 code-example-hook></extended-select>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row mb-3">
+				<div class="col-sm-6">
+					<div class="card">
+						<div class="card-header" id="resolve-options">Resolve options on search</div>
+						<div class="card-body">
+							<extended-select ng-model="vm.word4" ng-options="o as o.word for o in vm.resolvedOptions"
+											 resolve-on-search="resolveOnSearch"
+											 code-example-hook></extended-select>
+							<p class="form-text">
+								"resolveOnSearch" in this example, must be a function that accepts search string as
+								its parameter and returns a promise (see <a href="example.js">example.js</a>).
+								<span class="text-danger">
+									Currently this option is only available on single select!
+								</span>
+							</p>
+						</div>
+					</div>
+				</div>
+				<div class="col-sm-6">
+					<div class="card">
+						<div class="card-header" id="add-option">Allow user to add an option</div>
+						<div class="card-body">
+							<extended-select ng-model="vm.word5" ng-options="o as o.word for o in vm.emptyOptions"
+											 add-option="vm.addOptionCallback"
+											 code-example-hook></extended-select>
+							<p class="form-text">
+								"addOptionCallback" in this example, must be a function that accepts search string as
+								its parameter and adds a new option to options array (see
+								<a href="example.js">example.js</a>).
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row mb-3">
+				<div class="col-sm-6">
+					<div class="card">
+						<div class="card-header" id="deselect">Allow user to deselect an selected option</div>
+						<div class="card-body">
+							<extended-select ng-model="vm.word6" ng-options="o as o.word for o in vm.shortOptions"
+											 deselectable code-example-hook></extended-select>
+						</div>
+					</div>
+				</div>
+				<div class="col-sm-6">
+					<div class="card">
+						<div class="card-header" id="disabled-state">Disabled state</div>
+						<div class="card-body">
+							<extended-select ng-model="vm.word7" ng-options="o as o.word for o in vm.shortOptions"
+											 ng-disabled="true"
+											 code-example-hook></extended-select>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row mb-3">
+				<div class="col-sm-6">
+					<div class="card">
+						<div class="card-header" id="size-sm">Combined with bootstrap "custom-select-sm" class</div>
+						<div class="card-body">
+							<extended-select ng-model="vm.word8" ng-options="o as o.word for o in vm.shortOptions"
+											 class="custom-select-sm"
+											 code-example-hook></extended-select>
+						</div>
+					</div>
+				</div>
+				<div class="col-sm-6">
+					<div class="card">
+						<div class="card-header" id="size-lg">Combined with bootstrap "custom-select-lg" class</div>
+						<div class="card-body">
+							<extended-select ng-model="vm.word9" ng-options="o as o.word for o in vm.shortOptions"
+											 class="custom-select-lg"
+											 code-example-hook></extended-select>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row mb-3">
+				<div class="col-sm-6">
+					<div class="card">
+						<div class="card-header" id="option-tag">Options via &lt;option&gt; tags</div>
+						<div class="card-body">
+							<extended-select ng-model="vm.country" code-example-hook>
+								<option value="1">China</option>
+								<option value="2">France</option>
+								<option value="3">Poland</option>
+							</extended-select>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript" src="../node_modules/angular/angular.min.js"></script>
+<script type="text/javascript" src="../node_modules/angularjs-bootstrap-4/dist/angularjs-bootstrap-4.min.js"></script>
+<script type="text/javascript" src="../dist/angularjs-bootstrap4-extended-select.js"></script>
+<script type="text/javascript" src="example.js"></script>
+</body>
+</html>
