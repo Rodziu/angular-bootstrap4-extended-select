@@ -145,7 +145,7 @@
 						<div class="card-header" id="add-option">Allow user to add an option</div>
 						<div class="card-body">
 							<extended-select ng-model="vm.word5" ng-options="o as o.word for o in vm.emptyOptions"
-											 add-option="vm.addOptionCallback"
+											 add-option="vm.addOptionCallback(value)"
 											 code-example-hook></extended-select>
 							<p class="form-text">
 								"addOptionCallback" in this example, must be a function that accepts search string as

@@ -128,7 +128,7 @@
 					}
 				}
 				if(!found){
-					ctrl.addOption(ctrl.search);
+					ctrl.addOption({value: ctrl.search});
 					ctrl.addOptionCalled = true;
 					// we set this flag, so we can update ngModel with proper option,
 					// which will be generated on next digest cycle
@@ -270,7 +270,7 @@
 		},
 		bindings: {
 			ngModel: '=',
-			addOption: '<?',
+			addOption: '&?',
 			resolveOnSearch: '<?',
 			deselectable: '<?',
 			typeToSearch: '<?',
