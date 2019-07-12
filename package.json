@@ -24,6 +24,7 @@
     "eslint": "^5.16.0",
     "eslint-config-angular": "^0.5.0",
     "eslint-plugin-angular": "^4.0.0",
+    "fstream": "^1.0.12",
     "gulp": "^4.0.0",
     "gulp-angular-templatecache": "^2.2.2",
     "gulp-append-prepend": "^1.0.8",
@@ -35,6 +36,7 @@
     "gulp-sass": "^4.0.2",
     "gulp-sourcemaps": "^2.6.4",
     "gulp-uglify-es": "^1.0.4",
+    "lodash": "^4.17.13",
     "ng-annotate-patched": "^1.9.0"
   }
 }
