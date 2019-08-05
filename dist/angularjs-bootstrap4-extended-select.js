@@ -269,7 +269,7 @@ angular.module('extendedSelect', ['angularBS.helpers', 'angularBS.dropdown']);
 					ctrl.loading = true;
 					searchTimeout = $timeout(function(){
 						searchTimeout = null;
-						ctrl.resolveOnSearch(ctrl.search).then(function(){
+						ctrl.resolveOnSearch({value: ctrl.search}).then(function(){
 							lastSearchValue = undefined;
 							ctrl.loading = false;
 						}).catch(function(){
@@ -477,7 +477,7 @@ angular.module('extendedSelect', ['angularBS.helpers', 'angularBS.dropdown']);
 		bindings: {
 			ngModel: '=',
 			addOption: '&?',
-			resolveOnSearch: '<?',
+			resolveOnSearch: '&',
 			deselectable: '<?',
 			typeToSearch: '<?',
 			searchByValue: '<?'

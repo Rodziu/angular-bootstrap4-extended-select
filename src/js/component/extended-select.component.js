@@ -63,7 +63,7 @@
 					ctrl.loading = true;
 					searchTimeout = $timeout(function(){
 						searchTimeout = null;
-						ctrl.resolveOnSearch(ctrl.search).then(function(){
+						ctrl.resolveOnSearch({value: ctrl.search}).then(function(){
 							lastSearchValue = undefined;
 							ctrl.loading = false;
 						}).catch(function(){
@@ -271,7 +271,7 @@
 		bindings: {
 			ngModel: '=',
 			addOption: '&?',
-			resolveOnSearch: '<?',
+			resolveOnSearch: '&',
 			deselectable: '<?',
 			typeToSearch: '<?',
 			searchByValue: '<?'

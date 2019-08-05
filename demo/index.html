@@ -128,7 +128,7 @@
 						<div class="card-header" id="resolve-options">Resolve options on search</div>
 						<div class="card-body">
 							<extended-select ng-model="vm.word4" ng-options="o as o.word for o in vm.resolvedOptions"
-											 resolve-on-search="resolveOnSearch"
+											 resolve-on-search="vm.resolveOnSearch(value)"
 											 code-example-hook></extended-select>
 							<p class="form-text">
 								"resolveOnSearch" in this example, must be a function that accepts search string as
