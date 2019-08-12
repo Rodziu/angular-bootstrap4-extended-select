@@ -477,7 +477,7 @@ angular.module('extendedSelect', ['angularBS.helpers', 'angularBS.dropdown']);
 		bindings: {
 			ngModel: '=',
 			addOption: '&?',
-			resolveOnSearch: '&',
+			resolveOnSearch: '&?',
 			deselectable: '<?',
 			typeToSearch: '<?',
 			searchByValue: '<?'

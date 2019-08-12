@@ -271,7 +271,7 @@
 		bindings: {
 			ngModel: '=',
 			addOption: '&?',
-			resolveOnSearch: '&',
+			resolveOnSearch: '&?',
 			deselectable: '<?',
 			typeToSearch: '<?',
 			searchByValue: '<?'
