@@ -1,6 +1,6 @@
 {
   "name": "angularjs-bootstrap4-extended-select",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "AngularJS extended select component.",
   "main": "dist/angularjs-bootstrap4-extended-select.js",
   "scripts": {
