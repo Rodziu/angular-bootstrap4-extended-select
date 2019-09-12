@@ -229,8 +229,8 @@
 				for(let i = 0; i < optionObjects.length; i++){
 					const locals = ngOptions.getLocals(i, optionObjects[i]);
 					options.push({
-						value: ngOptions.valueFn(locals),
-						label: ngOptions.displayFn(locals)
+						value: ngOptions.valueFn($scope.$parent, locals),
+						label: ngOptions.displayFn($scope.$parent, locals)
 					});
 					if(ctrl.addOptionCalled && options[options.length - 1].label === ctrl.search){
 						pickLater = options[options.length - 1];
