@@ -212,6 +212,19 @@
 						</div>
 					</div>
 				</div>
+				<div class="col-sm-6">
+					<div class="card">
+						<div class="card-header" id="form-inline">Inline form support</div>
+						<div class="card-body form-inline">
+							<div class="form-group">
+								<label>Select an option</label>
+								<extended-select ng-model="vm.word" ng-options="o as o.word for o in vm.options"
+												 class="ml-2">
+								</extended-select>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>

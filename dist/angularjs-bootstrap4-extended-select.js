@@ -502,65 +502,6 @@ angular.module('extendedSelect', ['angularBS.helpers', 'angularBS.dropdown']);
  */
 !function(){
 	'use strict';
-	/**
-	 * Parse ng-options in angular way.
-	 * 1: value expression (valueFn)
-	 * 2: label expression (displayFn)
-	 * 3: group by expression (groupByFn)
-	 * 4: disable when expression (disableWhenFn)
-	 * 5: array item variable name
-	 * 6: object item key variable name
-	 * 7: object item value variable name
-	 * 8: collection expression
-	 * 9: track by expression
-	 * @type {RegExp}
-	 */
-	extendedSelectOption.$inject = ["$parse"];
-	const NG_OPTIONS_REGEXP = /^\s*([\s\S]+?)(?:\s+as\s+([\s\S]+?))?(?:\s+group\s+by\s+([\s\S]+?))?(?:\s+disable\s+when\s+([\s\S]+?))?\s+for\s+(?:([$\w][$\w]*)|(?:\(\s*([$\w][$\w]*)\s*,\s*([$\w][$\w]*)\s*\)))\s+in\s+([\s\S]+?)(?:\s+track\s+by\s+([\s\S]+?))?$/;
-
-	/**
-	 * @ngdoc factory
-	 * @name ExtendedSelectOptions
-	 * @description extended-select helper functions
-	 */
-	function extendedSelectOption($parse){
-		return {
-			parseNgOptions
-		};
-
-		function parseNgOptions(ngOptionsString){
-			const match = ngOptionsString.match(NG_OPTIONS_REGEXP);
-			if(match == null){
-				return null;
-			}
-			const valueName = match[5] || match[7],
-				keyName = match[6];
-			return {
-				valueFn: $parse(match[2] ? match[1] : valueName),
-				displayFn: $parse(match[2] || match[1]),
-				valuesFn: $parse(match[8]),
-				getLocals: function(k, v){
-					const locals = {};
-					locals[valueName] = v;
-					if(keyName){
-						locals[keyName] = k;
-					}
-					return locals;
-				}
-			};
-		}
-	}
-
-	angular.module('extendedSelect').factory('extendedSelectOptions', extendedSelectOption);
-}();
-
-/*
- * AngularJS extended select component.
- * Copyright (c) 2016-2019 Rodziu <mateusz.rohde@gmail.com>
- * License: MIT
- */
-!function(){
-	'use strict';
 
 	function extendedSelectFilter(){
 		return function(options, search, typeToSearch, searchByValue){
@@ -618,6 +559,65 @@ angular.module('extendedSelect', ['angularBS.helpers', 'angularBS.dropdown']);
 	 * @description Underscore results in dropdown
 	 */
 	angular.module('extendedSelect').filter('extendedSelectSearch', extendedSelectSearchFilter);
+}();
+
+/*
+ * AngularJS extended select component.
+ * Copyright (c) 2016-2019 Rodziu <mateusz.rohde@gmail.com>
+ * License: MIT
+ */
+!function(){
+	'use strict';
+	/**
+	 * Parse ng-options in angular way.
+	 * 1: value expression (valueFn)
+	 * 2: label expression (displayFn)
+	 * 3: group by expression (groupByFn)
+	 * 4: disable when expression (disableWhenFn)
+	 * 5: array item variable name
+	 * 6: object item key variable name
+	 * 7: object item value variable name
+	 * 8: collection expression
+	 * 9: track by expression
+	 * @type {RegExp}
+	 */
+	extendedSelectOption.$inject = ["$parse"];
+	const NG_OPTIONS_REGEXP = /^\s*([\s\S]+?)(?:\s+as\s+([\s\S]+?))?(?:\s+group\s+by\s+([\s\S]+?))?(?:\s+disable\s+when\s+([\s\S]+?))?\s+for\s+(?:([$\w][$\w]*)|(?:\(\s*([$\w][$\w]*)\s*,\s*([$\w][$\w]*)\s*\)))\s+in\s+([\s\S]+?)(?:\s+track\s+by\s+([\s\S]+?))?$/;
+
+	/**
+	 * @ngdoc factory
+	 * @name ExtendedSelectOptions
+	 * @description extended-select helper functions
+	 */
+	function extendedSelectOption($parse){
+		return {
+			parseNgOptions
+		};
+
+		function parseNgOptions(ngOptionsString){
+			const match = ngOptionsString.match(NG_OPTIONS_REGEXP);
+			if(match == null){
+				return null;
+			}
+			const valueName = match[5] || match[7],
+				keyName = match[6];
+			return {
+				valueFn: $parse(match[2] ? match[1] : valueName),
+				displayFn: $parse(match[2] || match[1]),
+				valuesFn: $parse(match[8]),
+				getLocals: function(k, v){
+					const locals = {};
+					locals[valueName] = v;
+					if(keyName){
+						locals[keyName] = k;
+					}
+					return locals;
+				}
+			};
+		}
+	}
+
+	angular.module('extendedSelect').factory('extendedSelectOptions', extendedSelectOption);
 }();
 
 angular.module('extendedSelect').run(['$templateCache', function($templateCache) {$templateCache.put('src/templates/extended-select-multiple.html','<div class="dropdown custom-select angular-extended-select" bs-dropdown="ctrl.isOpen" ng-class="{\'custom-select-sm\': ctrl.isSmall, \'custom-select-lg\': ctrl.isLarge}" ng-disabled="ctrl.isDisabled"><span class="caret"></span><ul class="extended-select-multiple"><li ng-show="!ctrl.ngModel.length && !ctrl.isOpen">{{ctrl.placeholder}}</li><li ng-repeat="m in ctrl.ngModel" class="ext-select-choice" ng-if="ctrl.getModelValue(m)"><span>{{::ctrl.getModelValue(m)}}</span> <button type="button" class="close" ng-click="$event.stopPropagation();ctrl.deselect(m)" ng-if="!ctrl.isDisabled">&times;</button></li><li ng-show="ctrl.isOpen"><input type="text" ng-model="ctrl.search" extended-select-search ng-change="ctrl.searchFn()" ng-disabled="attr.disabled"> <a ng-click="$event.stopPropagation();ctrl.addOptionAction()" class="label label-success" ng-show="ctrl.addOption && ctrl.search">{{::ctrl.addOptionLang}}</a></li></ul><div class="clearfix"></div><div class="dropdown-menu" extended-select-dropdown><ul class="dropdown-menu" extended-select-options="ctrl.activeIndex"><li class="dropdown-item" ng-repeat="o in ctrl.optionsFiltered = (ctrl.options | extendedSelectFilter:ctrl.search:ctrl.typeToSearch:ctrl.searchByValue)" ng-click="ctrl.pickOption(o)" ng-class="{\'active\': $index == ctrl.activeIndex, \'selected\': ctrl.isSelected(o)}"><a ng-bind-html="o.label | extendedSelectSearch:ctrl.search"></a></li><li class="dropdown-item" ng-show="ctrl.typeToSearch && ctrl.search == \'\'"><a>{{::ctrl.typeToSearchText}}</a></li></ul></div><div ng-transclude style="display:none"></div></div>');

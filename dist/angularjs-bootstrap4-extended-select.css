@@ -77,6 +77,8 @@ extended-select.custom-select-lg, extended-select.custom-select-sm {
     margin: 0 0 0 -1px; }
     .angular-extended-select > .dropdown-menu > div {
       padding: 4px 8px; }
+      .angular-extended-select > .dropdown-menu > div:not(.input-group) > input {
+        width: 100%; }
     .angular-extended-select > .dropdown-menu > .dropdown-menu {
       -webkit-border-radius: 0;
       -moz-border-radius: 0;
@@ -89,11 +91,12 @@ extended-select.custom-select-lg, extended-select.custom-select-sm {
       overflow-y: auto;
       overflow-x: hidden; }
       .angular-extended-select > .dropdown-menu > .dropdown-menu > li.dropdown-item {
-        padding: .25rem; }
+        padding: 0; }
         .angular-extended-select > .dropdown-menu > .dropdown-menu > li.dropdown-item.selected > a {
           background: transparent !important;
           color: #ccc; }
         .angular-extended-select > .dropdown-menu > .dropdown-menu > li.dropdown-item > a {
+          display: inline-block;
           padding: 3px 10px;
           cursor: default;
           white-space: normal; }
