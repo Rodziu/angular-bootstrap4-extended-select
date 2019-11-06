@@ -383,12 +383,14 @@ angular.module('extendedSelect', ['angularBS.helpers', 'angularBS.dropdown']);
 		 * Init
 		 */
 		ctrl.$onInit = function(){
-			ctrl.options = [];
+      ctrl.options = [];
 			ctrl.optionsFiltered = [];
 			ctrl.activeIndex = -1;
 			ctrl.search = '';
 			ctrl.multiple = 'multiple' in $attrs;
-			ctrl.deselectable = 'deselectable' in $attrs;
+			if (!ctrl.deselectable && 'deselectable' in $attrs && !$attrs.deselectable.length) {
+				ctrl.deselectable = true;
+      }
 			ctrl.addOptionLang = extendedSelect.addOptionLang;
 			if(angular.isUndefined(ctrl.typeToSearch)){
 				ctrl.typeToSearch = extendedSelect.typeToSearch;
@@ -464,7 +466,7 @@ angular.module('extendedSelect', ['angularBS.helpers', 'angularBS.dropdown']);
 	 * @param {expression} ngModel
 	 * @param {expression|function} addOption
 	 * @param {expression|function} resolveOnSearch
-	 * @param {string} deselectable
+	 * @param {expression} deselectable
 	 * @param {expression|number} typeToSearch
 	 * @param {expression|boolean} searchByValue
 	 * @param {String} placeholder
