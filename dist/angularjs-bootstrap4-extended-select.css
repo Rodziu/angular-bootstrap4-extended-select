@@ -27,13 +27,14 @@ extended-select.custom-select-lg, extended-select.custom-select-sm {
     -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6);
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6); }
   .angular-extended-select > .deselect {
-    position: absolute;
-    top: 3px;
-    right: 25px;
     font-weight: bold;
-    font-size: 20px;
     text-decoration: none;
-    cursor: pointer; }
+    cursor: pointer;
+    -webkit-transform: scale(1.4);
+    -ms-transform: scale(1.4);
+    -o-transform: scale(1.4);
+    transform: scale(1.4);
+    float: right; }
   .angular-extended-select.custom-select-sm > .deselect {
     top: 1px; }
   .angular-extended-select.custom-select-lg > .deselect {
