@@ -90,6 +90,7 @@
 				ctrl.ngModel = option.value;
 				ctrl.activeIndex = ctrl.options.indexOf(option);
 			}
+			ctrl.ngModelCtrl.$setViewValue(ctrl.ngModel);
 		};
 		/**
 		 * @param option
