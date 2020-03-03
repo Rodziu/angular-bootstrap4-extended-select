@@ -115,6 +115,7 @@
 				ctrl.ngModel = undefined;
 			}
 			ctrl.activeIndex = -1;
+      ctrl.ngModelCtrl.$setViewValue(ctrl.ngModel);
 		};
 		/**
 		 */

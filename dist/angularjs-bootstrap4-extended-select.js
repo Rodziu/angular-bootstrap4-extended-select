@@ -321,6 +321,7 @@ angular.module('extendedSelect', ['angularBS.helpers', 'angularBS.dropdown']);
 				ctrl.ngModel = undefined;
 			}
 			ctrl.activeIndex = -1;
+      ctrl.ngModelCtrl.$setViewValue(ctrl.ngModel);
 		};
 		/**
 		 */
