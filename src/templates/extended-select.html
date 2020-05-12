@@ -5,7 +5,6 @@
   -->
 <div class="dropdown custom-select angular-extended-select" bs-dropdown="ctrl.isOpen"
 	 ng-class="{'custom-select-sm': ctrl.isSmall, 'custom-select-lg': ctrl.isLarge}" ng-disabled="ctrl.isDisabled">
-	<span class="caret"></span>
 	<a class="deselect" ng-if="ctrl.deselectable && ctrl.getModelValue() && !ctrl.isDisabled"
 	   ng-click="ctrl.deselect()">&times;</a>
 	{{ctrl.getModelValue() || ctrl.placeholder}}
@@ -29,7 +28,7 @@
 				ng-class="{'active': $index == ctrl.activeIndex}">
 				<a ng-bind-html="o.label | extendedSelectSearch:ctrl.search"></a>
 			</li>
-			<li class="dropdown-item" ng-show="ctrl.typeToSearch && ctrl.search == ''">
+			<li class="dropdown-item" ng-show="ctrl.typeToSearch && ctrl.search.length < ctrl.typeToSearch">
 				<a>{{::ctrl.typeToSearchText}}</a>
 			</li>
 		</ul>

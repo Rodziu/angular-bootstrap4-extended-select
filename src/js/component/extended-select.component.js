@@ -53,7 +53,7 @@
 		 */
 		ctrl.searchFn = function(){
 			ctrl.activeIndex = ctrl.options.length ? 0 : -1;
-			if(angular.isFunction(ctrl.resolveOnSearch) && !ctrl.multiple){
+			if(angular.isFunction(ctrl.resolveOnSearch)){
 				if(angular.isDefined(ctrl.search) && ctrl.search.length){
 					const timeout = angular.isUndefined(lastSearchValue) ? 0 : 750;
 					if(searchTimeout !== null){

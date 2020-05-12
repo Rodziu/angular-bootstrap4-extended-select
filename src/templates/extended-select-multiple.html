@@ -23,7 +23,7 @@
 		</li>
 	</ul>
 	<div class="clearfix"></div>
-	<div class="dropdown-menu" extended-select-dropdown>
+	<div class="dropdown-menu" extended-select-dropdown ng-hide="!ctrl.typeToSearch && !ctrl.options.length">
 		<ul class="dropdown-menu" extended-select-options="ctrl.activeIndex">
 			<li class="dropdown-item" ng-repeat="o in ctrl.optionsFiltered =
 				(ctrl.options | extendedSelectFilter:ctrl.search:ctrl.typeToSearch:ctrl.searchByValue)"
@@ -31,7 +31,7 @@
 				ng-class="{'active': $index == ctrl.activeIndex, 'selected': ctrl.isSelected(o)}">
 				<a ng-bind-html="o.label | extendedSelectSearch:ctrl.search"></a>
 			</li>
-			<li class="dropdown-item" ng-show="ctrl.typeToSearch && ctrl.search == ''">
+			<li class="dropdown-item" ng-show="ctrl.typeToSearch && ctrl.search.length < ctrl.typeToSearch">
 				<a>{{::ctrl.typeToSearchText}}</a>
 			</li>
 		</ul>

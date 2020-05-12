@@ -16,7 +16,7 @@ angular.module('exampleApp', ['extendedSelect'])
 
 		ctrl.resolvedOptions = [];
 		ctrl.resolveOnSearch = function(search){
-			search = search.toLowerCase();
+      search = search.toLowerCase();
 			const defered = $q.defer(),
 				results = [];
 			for(let i = 0; i < ctrl.options.length; i++){
@@ -27,7 +27,11 @@ angular.module('exampleApp', ['extendedSelect'])
 					}
 				}
 			}
-			ctrl.resolvedOptions = results;
+			results.forEach((option) => {
+			  if (!~ctrl.resolvedOptions.indexOf(option)) {
+			    ctrl.resolvedOptions.push(option);
+        }
+      });
 			defered.resolve();
 			return defered.promise;
 		};
