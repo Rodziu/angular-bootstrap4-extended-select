@@ -62,12 +62,12 @@ extended-select.custom-select-lg, extended-select.custom-select-sm {
         -webkit-border-radius: 4px;
         -moz-border-radius: 4px;
         border-radius: 4px;
-        padding: 0 5px; }
+        padding: 0 5px;
+        display: flex;
+        align-items: center; }
         .angular-extended-select > .extended-select-multiple > li.ext-select-choice > button {
-          position: relative;
-          right: -2px;
-          top: 4px;
-          font-size: 18px; }
+          margin-left: 3px;
+          font-size: 130%; }
       .angular-extended-select > .extended-select-multiple > li > input {
         border: 0 none;
         padding: 0;
