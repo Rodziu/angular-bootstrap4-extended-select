@@ -376,6 +376,12 @@ angular.module('extendedSelect', ['angularBS.helpers', 'angularBS.dropdown']);
 		$attrs.$observe('placeholder', function(value){
 			ctrl.placeholder = value;
 		});
+    $attrs.$observe('disabled', function(value) {
+      ctrl.isDisabled = value === true || angular.isString(value);
+    });
+    $attrs.$observe('readonly', function(value) {
+      ctrl.isReadonly = value === true || angular.isString(value);
+    });
 		/**
 		 * Init
 		 */
@@ -453,10 +459,6 @@ angular.module('extendedSelect', ['angularBS.helpers', 'angularBS.dropdown']);
 			}
 			ctrl.isSmall = $element.hasClass('custom-select-sm');
 			ctrl.isLarge = $element.hasClass('custom-select-lg');
-			ctrl.isDisabled = 'disabled' in $attrs
-          && ($attrs.disabled === true || angular.isString($attrs.disabled));
-      ctrl.isReadonly = 'readonly' in $attrs
-          && ($attrs.readonly === true || angular.isString($attrs.readonly));
     };
 	}
 
