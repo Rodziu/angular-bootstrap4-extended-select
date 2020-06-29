@@ -101,7 +101,7 @@ extended-select.custom-select-lg, extended-select.custom-select-sm {
           padding: 3px 10px;
           cursor: default;
           white-space: normal; }
-  .angular-extended-select[disabled] {
+  .angular-extended-select[disabled], .angular-extended-select[readonly] {
     color: #6c757d;
     background-color: #e9ecef; }
 

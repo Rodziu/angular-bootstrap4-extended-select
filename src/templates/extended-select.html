@@ -4,8 +4,8 @@
   ~ License: MIT
   -->
 <div class="dropdown custom-select angular-extended-select" bs-dropdown="ctrl.isOpen"
-	 ng-class="{'custom-select-sm': ctrl.isSmall, 'custom-select-lg': ctrl.isLarge}" ng-disabled="ctrl.isDisabled">
-	<a class="deselect" ng-if="ctrl.deselectable && ctrl.getModelValue() && !ctrl.isDisabled"
+	 ng-class="{'custom-select-sm': ctrl.isSmall, 'custom-select-lg': ctrl.isLarge}" ng-disabled="ctrl.isDisabled" ng-readonly="ctrl.isReadonly">
+	<a class="deselect" ng-if="ctrl.deselectable && ctrl.getModelValue() && !ctrl.isDisabled && !ctrl.isReadonly"
 	   ng-click="ctrl.deselect()">&times;</a>
 	{{ctrl.getModelValue() || ctrl.placeholder}}
 	<div class="clearfix"></div>

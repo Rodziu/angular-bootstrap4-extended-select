@@ -164,12 +164,24 @@
 						</div>
 					</div>
 				</div>
+			</div>
+			<div class="row mb-3">
 				<div class="col-sm-6">
 					<div class="card">
 						<div class="card-header" id="disabled-state">Disabled state</div>
 						<div class="card-body">
 							<extended-select ng-model="vm.word7" ng-options="o as o.word for o in vm.shortOptions"
 											 ng-disabled="true"
+											 code-example-hook></extended-select>
+						</div>
+					</div>
+				</div>
+				<div class="col-sm-6">
+					<div class="card">
+						<div class="card-header" id="readonly-state">Readonly state</div>
+						<div class="card-body">
+							<extended-select ng-model="vm.word7" ng-options="o as o.word for o in vm.shortOptions"
+											 ng-readonly="true"
 											 code-example-hook></extended-select>
 						</div>
 					</div>

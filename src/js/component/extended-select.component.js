@@ -142,7 +142,7 @@
 		$element.on('click', function(){
 			const wasOpen = ctrl.isOpen;
 			ctrl.ngModelCtrl.$setTouched();
-			if($attrs.disabled){
+			if(ctrl.isDisabled || ctrl.isReadonly){
 				ctrl.isOpen = false;
 			}else{
 				ctrl.isOpen = ctrl.multiple ? true : !ctrl.isOpen;
@@ -164,11 +164,6 @@
 			if(!wasOpen && ctrl.isOpen){
 				ctrl.searchElement[0].focus();
 			}
-		});
-		/**
-		 */
-		$attrs.$observe('disabled', function(value){
-			ctrl.isDisabled = value;
 		});
 		/**
 		 */
@@ -252,7 +247,11 @@
 			}
 			ctrl.isSmall = $element.hasClass('custom-select-sm');
 			ctrl.isLarge = $element.hasClass('custom-select-lg');
-		};
+			ctrl.isDisabled = 'disabled' in $attrs
+          && ($attrs.disabled === true || angular.isString($attrs.disabled));
+      ctrl.isReadonly = 'readonly' in $attrs
+          && ($attrs.readonly === true || angular.isString($attrs.readonly));
+    };
 	}
 
 	/**

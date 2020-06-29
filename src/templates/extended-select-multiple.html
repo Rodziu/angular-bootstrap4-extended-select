@@ -4,7 +4,7 @@
   ~ License: MIT
   -->
 <div class="dropdown custom-select angular-extended-select" bs-dropdown="ctrl.isOpen"
-	 ng-class="{'custom-select-sm': ctrl.isSmall, 'custom-select-lg': ctrl.isLarge}" ng-disabled="ctrl.isDisabled">
+	 ng-class="{'custom-select-sm': ctrl.isSmall, 'custom-select-lg': ctrl.isLarge}" ng-disabled="ctrl.isDisabled" ng-readonly="ctrl.isReadonly">
 	<span class="caret"></span>
 	<ul class="extended-select-multiple">
 		<li ng-show="!ctrl.ngModel.length && !ctrl.isOpen">
@@ -13,7 +13,7 @@
 		<li ng-repeat="m in ctrl.ngModel" class="ext-select-choice" ng-if="ctrl.getModelValue(m)">
 			<span>{{::ctrl.getModelValue(m)}}</span>
 			<button type="button" class="close" ng-click="$event.stopPropagation();ctrl.deselect(m)"
-					ng-if="!ctrl.isDisabled">&times;</button>
+					ng-if="!ctrl.isDisabled && !ctrl.isReadonly">&times;</button>
 		</li>
 		<li ng-show="ctrl.isOpen">
 			<input type="text" ng-model="ctrl.search" extended-select-search ng-change="ctrl.searchFn()"
