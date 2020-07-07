@@ -31,7 +31,7 @@
 			<li class="dropdown-item" ng-show="ctrl.typeToSearch && ctrl.search.length < ctrl.typeToSearch">
 				<a>{{::ctrl.typeToSearchText}}</a>
 			</li>
-			<li class="dropdown-item" ng-show="ctrl.resolveOnSearch && ctrl.hasNextPage">
+			<li class="dropdown-item" ng-show="ctrl.resolveOnSearch && ctrl.hasNextPage && (!ctrl.typeToSearch || ctrl.search.length >= ctrl.typeToSearch)">
 				<a href="javascript:" class="text-primary" ng-click="ctrl.searchFn(ctrl.page + 1)">{{::ctrl.loadMoreResultsLang}}</a>
 			</li>
 		</ul>
