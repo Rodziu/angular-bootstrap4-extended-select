@@ -56,6 +56,7 @@ angular.module('extendedSelect', ['angularBS.helpers', 'angularBS.dropdown']);
 			typeToSearch: 0,
 			typeToSearchText: 'Zacznij pisać, by wyświetlić dostępne opcje',
 			addOptionLang: 'Dodaj',
+      loadMoreResultsLang: 'Pobierz więcej wyników',
 			searchByValue: false
 		};
 		// noinspection JSUnusedGlobalSymbols
@@ -257,23 +258,29 @@ angular.module('extendedSelect', ['angularBS.helpers', 'angularBS.dropdown']);
 		/**
 		 * Search change callback
 		 */
-		ctrl.searchFn = function(){
-			ctrl.activeIndex = ctrl.options.length ? 0 : -1;
-			if(angular.isFunction(ctrl.resolveOnSearch)){
+		ctrl.searchFn = function(page) {
+      if (angular.isUndefined(page)) {
+        ctrl.activeIndex = ctrl.options.length ? 0 : -1;
+      }
+      ctrl.hasNextPage = false;
+      if (angular.isFunction(ctrl.resolveOnSearch)) {
+        ctrl.page = page || 1;
 				if(angular.isDefined(ctrl.search) && ctrl.search.length){
 					const timeout = angular.isUndefined(lastSearchValue) ? 0 : 750;
 					if(searchTimeout !== null){
 						$timeout.cancel(searchTimeout);
 					}
 					lastSearchValue = ctrl.search;
-					ctrl.loading = true;
-					searchTimeout = $timeout(function(){
-						searchTimeout = null;
-						ctrl.resolveOnSearch({value: ctrl.search}).then(function(){
-							lastSearchValue = undefined;
-							ctrl.loading = false;
-						}).catch(function(){
-						});
+          ctrl.loading = true;
+          searchTimeout = $timeout(function() {
+            searchTimeout = null;
+            ctrl.resolveOnSearch({value: ctrl.search, page: ctrl.page}).
+                then(function(response) {
+                  lastSearchValue = undefined;
+                  ctrl.loading = false;
+                  ctrl.hasNextPage = response && !!response.hasNextPage;
+                }).
+                catch(angular.noop);
 					}, timeout);
 				}
 			}
@@ -296,6 +303,7 @@ angular.module('extendedSelect', ['angularBS.helpers', 'angularBS.dropdown']);
 				ctrl.ngModel = option.value;
 				ctrl.activeIndex = ctrl.options.indexOf(option);
 			}
+      ctrl.hasNextPage = false;
 			ctrl.ngModelCtrl.$setViewValue(ctrl.ngModel);
 		};
 		/**
@@ -394,7 +402,8 @@ angular.module('extendedSelect', ['angularBS.helpers', 'angularBS.dropdown']);
 			if (!ctrl.deselectable && 'deselectable' in $attrs && !$attrs.deselectable.length) {
 				ctrl.deselectable = true;
       }
-			ctrl.addOptionLang = extendedSelect.addOptionLang;
+      ctrl.addOptionLang = extendedSelect.addOptionLang;
+      ctrl.loadMoreResultsLang = extendedSelect.loadMoreResultsLang;
 			if(angular.isUndefined(ctrl.typeToSearch)){
 				ctrl.typeToSearch = extendedSelect.typeToSearch;
 			}
@@ -625,5 +634,5 @@ angular.module('extendedSelect', ['angularBS.helpers', 'angularBS.dropdown']);
 	angular.module('extendedSelect').factory('extendedSelectOptions', extendedSelectOption);
 }();
 
-angular.module('extendedSelect').run(['$templateCache', function($templateCache) {$templateCache.put('src/templates/extended-select-multiple.html','<div class="dropdown custom-select angular-extended-select" bs-dropdown="ctrl.isOpen" ng-class="{\'custom-select-sm\': ctrl.isSmall, \'custom-select-lg\': ctrl.isLarge}" ng-disabled="ctrl.isDisabled" ng-readonly="ctrl.isReadonly"><span class="caret"></span><ul class="extended-select-multiple"><li ng-show="!ctrl.ngModel.length && !ctrl.isOpen">{{ctrl.placeholder}}</li><li ng-repeat="m in ctrl.ngModel" class="ext-select-choice" ng-if="ctrl.getModelValue(m)"><span>{{::ctrl.getModelValue(m)}}</span> <button type="button" class="close" ng-click="$event.stopPropagation();ctrl.deselect(m)" ng-if="!ctrl.isDisabled && !ctrl.isReadonly">&times;</button></li><li ng-show="ctrl.isOpen"><input type="text" ng-model="ctrl.search" extended-select-search ng-change="ctrl.searchFn()" ng-disabled="attr.disabled"> <a ng-click="$event.stopPropagation();ctrl.addOptionAction()" class="label label-success" ng-show="ctrl.addOption && ctrl.search">{{::ctrl.addOptionLang}}</a></li></ul><div class="clearfix"></div><div class="dropdown-menu" extended-select-dropdown ng-hide="!ctrl.typeToSearch && !ctrl.options.length"><ul class="dropdown-menu" extended-select-options="ctrl.activeIndex"><li class="dropdown-item" ng-repeat="o in ctrl.optionsFiltered = (ctrl.options | extendedSelectFilter:ctrl.search:ctrl.typeToSearch:ctrl.searchByValue)" ng-click="ctrl.pickOption(o)" ng-class="{\'active\': $index == ctrl.activeIndex, \'selected\': ctrl.isSelected(o)}"><a ng-bind-html="o.label | extendedSelectSearch:ctrl.search"></a></li><li class="dropdown-item" ng-show="ctrl.typeToSearch && ctrl.search.length < ctrl.typeToSearch"><a>{{::ctrl.typeToSearchText}}</a></li></ul></div><div ng-transclude style="display:none"></div></div>');
-$templateCache.put('src/templates/extended-select.html','<div class="dropdown custom-select angular-extended-select" bs-dropdown="ctrl.isOpen" ng-class="{\'custom-select-sm\': ctrl.isSmall, \'custom-select-lg\': ctrl.isLarge}" ng-disabled="ctrl.isDisabled" ng-readonly="ctrl.isReadonly"><a class="deselect" ng-if="ctrl.deselectable && ctrl.getModelValue() && !ctrl.isDisabled && !ctrl.isReadonly" ng-click="ctrl.deselect()">&times;</a> {{ctrl.getModelValue() || ctrl.placeholder}}<div class="clearfix"></div><div class="dropdown-menu" extended-select-dropdown><div ng-class="{\'input-group input-group-sm\': ctrl.addOption}"><input type="text" class="form-control form-control-sm" ng-model="ctrl.search" ng-change="ctrl.searchFn()" extended-select-search> <span ng-show="ctrl.loading"><i class="fa fa-spinner fa-spin ext-select-loading"></i></span> <span class="input-group-append" ng-if="ctrl.addOption"><button type="button" class="btn btn-success" ng-click="$event.stopPropagation();ctrl.addOptionAction()">{{::ctrl.addOptionLang}}</button></span></div><ul class="dropdown-menu" extended-select-options="ctrl.activeIndex"><li class="dropdown-item" ng-repeat="o in ctrl.optionsFiltered = (ctrl.options | extendedSelectFilter:ctrl.search:ctrl.typeToSearch:ctrl.searchByValue)" ng-click="ctrl.pickOption(o)" ng-class="{\'active\': $index == ctrl.activeIndex}"><a ng-bind-html="o.label | extendedSelectSearch:ctrl.search"></a></li><li class="dropdown-item" ng-show="ctrl.typeToSearch && ctrl.search.length < ctrl.typeToSearch"><a>{{::ctrl.typeToSearchText}}</a></li></ul></div><div ng-transclude style="display:none"></div></div>');}]);
+angular.module('extendedSelect').run(['$templateCache', function($templateCache) {$templateCache.put('src/templates/extended-select-multiple.html','<div class="dropdown custom-select angular-extended-select" bs-dropdown="ctrl.isOpen" ng-class="{\'custom-select-sm\': ctrl.isSmall, \'custom-select-lg\': ctrl.isLarge}" ng-disabled="ctrl.isDisabled" ng-readonly="ctrl.isReadonly"><span class="caret"></span><ul class="extended-select-multiple"><li ng-show="!ctrl.ngModel.length && !ctrl.isOpen">{{ctrl.placeholder}}</li><li ng-repeat="m in ctrl.ngModel" class="ext-select-choice" ng-if="ctrl.getModelValue(m)"><span>{{::ctrl.getModelValue(m)}}</span> <button type="button" class="close" ng-click="$event.stopPropagation();ctrl.deselect(m)" ng-if="!ctrl.isDisabled && !ctrl.isReadonly">&times;</button></li><li ng-show="ctrl.isOpen"><input type="text" ng-model="ctrl.search" extended-select-search ng-change="ctrl.searchFn()" ng-disabled="attr.disabled"> <a ng-click="$event.stopPropagation();ctrl.addOptionAction()" class="label label-success" ng-show="ctrl.addOption && ctrl.search">{{::ctrl.addOptionLang}}</a></li></ul><div class="clearfix"></div><div class="dropdown-menu" extended-select-dropdown ng-hide="!ctrl.typeToSearch && !ctrl.options.length"><ul class="dropdown-menu" extended-select-options="ctrl.activeIndex"><li class="dropdown-item" ng-repeat="o in ctrl.optionsFiltered = (ctrl.options | extendedSelectFilter:ctrl.search:ctrl.typeToSearch:ctrl.searchByValue)" ng-click="ctrl.pickOption(o)" ng-class="{\'active\': $index == ctrl.activeIndex, \'selected\': ctrl.isSelected(o)}"><a ng-bind-html="o.label | extendedSelectSearch:ctrl.search"></a></li><li class="dropdown-item" ng-show="ctrl.typeToSearch && ctrl.search.length < ctrl.typeToSearch"><a>{{::ctrl.typeToSearchText}}</a></li><li class="dropdown-item" ng-show="ctrl.resolveOnSearch && ctrl.hasNextPage"><a class="text-primary" ng-click="ctrl.searchFn(ctrl.page + 1)">{{::ctrl.loadMoreResultsLang}}</a></li></ul></div><div ng-transclude style="display:none"></div></div>');
+$templateCache.put('src/templates/extended-select.html','<div class="dropdown custom-select angular-extended-select" bs-dropdown="ctrl.isOpen" ng-class="{\'custom-select-sm\': ctrl.isSmall, \'custom-select-lg\': ctrl.isLarge}" ng-disabled="ctrl.isDisabled" ng-readonly="ctrl.isReadonly"><a class="deselect" ng-if="ctrl.deselectable && ctrl.getModelValue() && !ctrl.isDisabled && !ctrl.isReadonly" ng-click="ctrl.deselect()">&times;</a> {{ctrl.getModelValue() || ctrl.placeholder}}<div class="clearfix"></div><div class="dropdown-menu" extended-select-dropdown><div ng-class="{\'input-group input-group-sm\': ctrl.addOption}"><input type="text" class="form-control form-control-sm" ng-model="ctrl.search" ng-change="ctrl.searchFn()" extended-select-search> <span ng-show="ctrl.loading"><i class="fa fa-spinner fa-spin ext-select-loading"></i></span> <span class="input-group-append" ng-if="ctrl.addOption"><button type="button" class="btn btn-success" ng-click="$event.stopPropagation();ctrl.addOptionAction()">{{::ctrl.addOptionLang}}</button></span></div><ul class="dropdown-menu" extended-select-options="ctrl.activeIndex"><li class="dropdown-item" ng-repeat="o in ctrl.optionsFiltered = (ctrl.options | extendedSelectFilter:ctrl.search:ctrl.typeToSearch:ctrl.searchByValue)" ng-click="ctrl.pickOption(o)" ng-class="{\'active\': $index == ctrl.activeIndex}"><a ng-bind-html="o.label | extendedSelectSearch:ctrl.search"></a></li><li class="dropdown-item" ng-show="ctrl.typeToSearch && ctrl.search.length < ctrl.typeToSearch"><a>{{::ctrl.typeToSearchText}}</a></li><li class="dropdown-item" ng-show="ctrl.resolveOnSearch && ctrl.hasNextPage"><a href="javascript:" class="text-primary" ng-click="ctrl.searchFn(ctrl.page + 1)">{{::ctrl.loadMoreResultsLang}}</a></li></ul></div><div ng-transclude style="display:none"></div></div>');}]);

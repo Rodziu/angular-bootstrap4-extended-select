@@ -128,11 +128,15 @@
 						<div class="card-header" id="resolve-options">Resolve options on search</div>
 						<div class="card-body">
 							<extended-select ng-model="vm.word4" ng-options="o as o.word for o in vm.resolvedOptions"
-											 resolve-on-search="vm.resolveOnSearch(value)"
+											 resolve-on-search="vm.resolveOnSearch(value, page)"
 											 code-example-hook></extended-select>
 							<p class="form-text">
 								"resolveOnSearch" in this example, must be a function that accepts search string as
-								its parameter and returns a promise (see <a href="example.js">example.js</a>).
+								its parameter and returns a promise (see <a href="example.js">example.js</a>).<br/>
+								If a value returned from a promise is an object with a property <code>hasNextPage</code>
+								equal to <code>true</code> then a 'load more results' action is shown. Clicking on the 'load more results'
+								anchor causes the second parameter (<code>page</code>) of "resolveOnSearch" callback is being incremented
+								(defaults to <code>1</code>).<br/>
 								For multiple select it works best when combined with <code>type-to-search</code>.
 							</p>
 						</div>

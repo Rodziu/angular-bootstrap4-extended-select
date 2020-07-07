@@ -51,23 +51,29 @@
 		/**
 		 * Search change callback
 		 */
-		ctrl.searchFn = function(){
-			ctrl.activeIndex = ctrl.options.length ? 0 : -1;
-			if(angular.isFunction(ctrl.resolveOnSearch)){
+		ctrl.searchFn = function(page) {
+      if (angular.isUndefined(page)) {
+        ctrl.activeIndex = ctrl.options.length ? 0 : -1;
+      }
+      ctrl.hasNextPage = false;
+      if (angular.isFunction(ctrl.resolveOnSearch)) {
+        ctrl.page = page || 1;
 				if(angular.isDefined(ctrl.search) && ctrl.search.length){
 					const timeout = angular.isUndefined(lastSearchValue) ? 0 : 750;
 					if(searchTimeout !== null){
 						$timeout.cancel(searchTimeout);
 					}
 					lastSearchValue = ctrl.search;
-					ctrl.loading = true;
-					searchTimeout = $timeout(function(){
-						searchTimeout = null;
-						ctrl.resolveOnSearch({value: ctrl.search}).then(function(){
-							lastSearchValue = undefined;
-							ctrl.loading = false;
-						}).catch(function(){
-						});
+          ctrl.loading = true;
+          searchTimeout = $timeout(function() {
+            searchTimeout = null;
+            ctrl.resolveOnSearch({value: ctrl.search, page: ctrl.page}).
+                then(function(response) {
+                  lastSearchValue = undefined;
+                  ctrl.loading = false;
+                  ctrl.hasNextPage = response && !!response.hasNextPage;
+                }).
+                catch(angular.noop);
 					}, timeout);
 				}
 			}
@@ -90,6 +96,7 @@
 				ctrl.ngModel = option.value;
 				ctrl.activeIndex = ctrl.options.indexOf(option);
 			}
+      ctrl.hasNextPage = false;
 			ctrl.ngModelCtrl.$setViewValue(ctrl.ngModel);
 		};
 		/**
@@ -188,7 +195,8 @@
 			if (!ctrl.deselectable && 'deselectable' in $attrs && !$attrs.deselectable.length) {
 				ctrl.deselectable = true;
       }
-			ctrl.addOptionLang = extendedSelect.addOptionLang;
+      ctrl.addOptionLang = extendedSelect.addOptionLang;
+      ctrl.loadMoreResultsLang = extendedSelect.loadMoreResultsLang;
 			if(angular.isUndefined(ctrl.typeToSearch)){
 				ctrl.typeToSearch = extendedSelect.typeToSearch;
 			}

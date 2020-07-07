@@ -15,16 +15,18 @@ angular.module('exampleApp', ['extendedSelect'])
 		});
 
 		ctrl.resolvedOptions = [];
-		ctrl.resolveOnSearch = function(search){
+		ctrl.resolveOnSearch = function(search, page){
       search = search.toLowerCase();
 			const defered = $q.defer(),
 				results = [];
+			let hasNextPage = false;
 			for(let i = 0; i < ctrl.options.length; i++){
 				if(!!~ctrl.options[i].word.indexOf(search)){
+          if(results.length === (page * 10)){
+            hasNextPage = true;
+            break;
+          }
 					results.push(ctrl.options[i]);
-					if(results.length === 10){
-						break;
-					}
 				}
 			}
 			results.forEach((option) => {
@@ -32,7 +34,7 @@ angular.module('exampleApp', ['extendedSelect'])
 			    ctrl.resolvedOptions.push(option);
         }
       });
-			defered.resolve();
+			defered.resolve({hasNextPage});
 			return defered.promise;
 		};
 

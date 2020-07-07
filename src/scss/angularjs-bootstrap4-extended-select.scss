@@ -104,8 +104,10 @@ extended-select {
         > a {
           display: inline-block;
           padding: 3px 10px;
-          cursor: default;
           white-space: normal;
+          &:not([href]) {
+            cursor: default;
+          }
         }
       }
     }

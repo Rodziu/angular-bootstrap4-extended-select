@@ -14,6 +14,7 @@
 			typeToSearch: 0,
 			typeToSearchText: 'Zacznij pisać, by wyświetlić dostępne opcje',
 			addOptionLang: 'Dodaj',
+      loadMoreResultsLang: 'Pobierz więcej wyników',
 			searchByValue: false
 		};
 		// noinspection JSUnusedGlobalSymbols

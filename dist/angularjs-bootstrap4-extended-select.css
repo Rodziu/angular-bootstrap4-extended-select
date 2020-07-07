@@ -99,8 +99,9 @@ extended-select.custom-select-lg, extended-select.custom-select-sm {
         .angular-extended-select > .dropdown-menu > .dropdown-menu > li.dropdown-item > a {
           display: inline-block;
           padding: 3px 10px;
-          cursor: default;
           white-space: normal; }
+          .angular-extended-select > .dropdown-menu > .dropdown-menu > li.dropdown-item > a:not([href]) {
+            cursor: default; }
   .angular-extended-select[disabled], .angular-extended-select[readonly] {
     color: #6c757d;
     background-color: #e9ecef; }
