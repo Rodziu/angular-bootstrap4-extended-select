@@ -36,12 +36,12 @@
 			'src/js/**/*.module.js',
 			'src/js/**/*.js'
 		])
-			.pipe(ngAnnotate())
 			.pipe(sourcemaps.init())
-			.pipe(concat(pkg.name + '.js'))
 			.pipe(eslint())
 			.pipe(eslint.format())
 			.pipe(eslint.failOnError())
+			.pipe(ngAnnotate())
+			.pipe(concat(pkg.name + '.js'))
 			.pipe(gap.appendFile('dist/templates.js'))
 			.pipe(gulp.dest('dist'))
 			.pipe(rename(pkg.name + '.min.js'))
@@ -68,6 +68,18 @@
 			.pipe(sourcemaps.write('./', {includeContent: false}))
 			.pipe(gulp.dest('dist'));
 	});
+
+	// watch
+
+  gulp.task('watch', function() {
+    [
+      ['src/templates/**.html', 'templates'],
+      ['src/js/**/*.js', 'js'],
+      ['src/scss/*.scss', 'scss'],
+    ].forEach(([src, task]) => {
+      gulp.watch(src, {}, gulp.series(task));
+    });
+  });
 
 	//
 	exports.default = gulp.series('js', 'scss');
