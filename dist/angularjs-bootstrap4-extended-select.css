@@ -7,7 +7,7 @@ extended-select.custom-select-lg, extended-select.custom-select-sm {
   padding: 0; }
 
 .angular-extended-select {
-  cursor: default !important;
+  cursor: pointer;
   height: auto;
   text-align: left;
   -webkit-touch-callout: none;
@@ -22,89 +22,55 @@ extended-select.custom-select-lg, extended-select.custom-select-sm {
   /* Non-prefixed version, currently
                                   not supported by any browser */ }
   .angular-extended-select.show {
-    border-color: #66afe9;
+    color: #495057;
+    background-color: #fff;
+    border-color: #80bdff;
     outline: 0;
-    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6);
-    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6); }
-  .angular-extended-select > .deselect {
-    font-weight: bold;
-    text-decoration: none;
-    cursor: pointer;
-    -webkit-transform: scale(1.4);
-    -ms-transform: scale(1.4);
-    -o-transform: scale(1.4);
-    transform: scale(1.4);
-    float: right; }
-  .angular-extended-select.custom-select-sm > .deselect {
-    top: 1px; }
-  .angular-extended-select.custom-select-lg > .deselect {
-    top: 8px; }
-  .angular-extended-select .ext-select-loading {
-    position: absolute;
-    top: 20px;
-    right: 15px; }
-  .angular-extended-select .input-group > .ext-select-loading {
-    top: 11px;
-    right: 65px;
-    z-index: 10; }
-  .angular-extended-select > .extended-select-multiple {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    width: calc(100% - 15px); }
-    .angular-extended-select > .extended-select-multiple .label {
-      cursor: pointer; }
-    .angular-extended-select > .extended-select-multiple > li {
-      float: left;
-      margin: 0 3px 2px 0; }
-      .angular-extended-select > .extended-select-multiple > li.ext-select-choice {
-        border: 1px solid #ccc;
-        -webkit-border-radius: 4px;
-        -moz-border-radius: 4px;
-        border-radius: 4px;
-        padding: 0 5px;
-        display: flex;
-        align-items: center; }
-        .angular-extended-select > .extended-select-multiple > li.ext-select-choice > button {
-          margin-left: 3px;
-          font-size: 130%; }
-      .angular-extended-select > .extended-select-multiple > li > input {
-        border: 0 none;
-        padding: 0;
-        cursor: default;
-        background: transparent; }
-  .angular-extended-select > .dropdown-menu {
-    width: calc(100% + 2px);
-    margin: 0 0 0 -1px; }
-    .angular-extended-select > .dropdown-menu > div {
-      padding: 4px 8px; }
-      .angular-extended-select > .dropdown-menu > div:not(.input-group) > input {
-        width: 100%; }
-    .angular-extended-select > .dropdown-menu > .dropdown-menu {
-      -webkit-border-radius: 0;
-      -moz-border-radius: 0;
-      border-radius: 0;
-      border: 0 none;
-      padding: 0;
-      float: none;
-      position: relative;
-      max-height: 30vh;
-      overflow-y: auto;
-      overflow-x: hidden; }
-      .angular-extended-select > .dropdown-menu > .dropdown-menu > li.dropdown-item {
-        padding: 0; }
-        .angular-extended-select > .dropdown-menu > .dropdown-menu > li.dropdown-item.selected > a {
-          background: transparent !important;
-          color: #ccc; }
-        .angular-extended-select > .dropdown-menu > .dropdown-menu > li.dropdown-item > a {
-          display: inline-block;
-          padding: 3px 10px;
-          white-space: normal; }
-          .angular-extended-select > .dropdown-menu > .dropdown-menu > li.dropdown-item > a:not([href]) {
-            cursor: default; }
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); }
   .angular-extended-select[disabled], .angular-extended-select[readonly] {
     color: #6c757d;
-    background-color: #e9ecef; }
+    background-color: #e9ecef;
+    cursor: default; }
+  .angular-extended-select > .d-flex before-option {
+    margin-right: 0.25rem; }
+  .angular-extended-select > .d-flex .placeholder {
+    color: #6c757d; }
+  .angular-extended-select > .d-flex input {
+    border: 0 none;
+    padding: 0;
+    outline: 0 none;
+    background: transparent;
+    width: 1px; }
+    .angular-extended-select > .d-flex input::placeholder {
+      color: #6c757d;
+      opacity: 1; }
+  .angular-extended-select > .d-flex > .flex-grow-1 {
+    overflow: hidden; }
+  .angular-extended-select > .d-flex > .flex-wrap {
+    margin-bottom: -0.25rem; }
+    .angular-extended-select > .d-flex > .flex-wrap > div, .angular-extended-select > .d-flex > .flex-wrap > input, .angular-extended-select > .d-flex > .flex-wrap > a {
+      margin: 0 0.25rem 0.25rem 0; }
+    .angular-extended-select > .d-flex > .flex-wrap .extended-select-choice {
+      padding: 0 0.25rem;
+      border: 1px solid #ccc;
+      border-radius: 0.25rem;
+      align-items: center; }
+      .angular-extended-select > .d-flex > .flex-wrap .extended-select-choice > button {
+        font-size: 1rem; }
+  .angular-extended-select .dropdown-menu {
+    cursor: auto;
+    width: calc(100% + 2px);
+    margin-left: -1px;
+    max-height: calc(30vh + 1rem);
+    overflow-y: auto;
+    overflow-x: hidden; }
+    .angular-extended-select .dropdown-menu > .dropdown-item, .angular-extended-select .dropdown-menu > .dropdown-item-text {
+      padding: 3px 10px; }
+    .angular-extended-select .dropdown-menu extended-select-search {
+      white-space: normal; }
+    .angular-extended-select .dropdown-menu .selected {
+      background: transparent !important;
+      color: #ccc; }
 
 .form-inline .angular-extended-select {
   min-width: 200px; }

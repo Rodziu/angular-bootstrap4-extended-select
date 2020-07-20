@@ -101,33 +101,21 @@
 			<div class="row mb-3">
 				<div class="col-sm-6">
 					<div class="card">
-						<div class="card-header" id="custom-placeholder">Custom placeholder</div>
-						<div class="card-body">
-							<extended-select ng-model="vm.word2" ng-options="o as o.word for o in vm.shortOptions"
-											 placeholder="Custom placeholder text"
-											 code-example-hook></extended-select>
-						</div>
-					</div>
-				</div>
-				<div class="col-sm-6">
-					<div class="card">
 						<div class="card-header" id="custom-placeholder2">
 							Begin option filtering after typing 2 chars
 						</div>
 						<div class="card-body">
-							<extended-select ng-model="vm.word3" ng-options="o as o.word for o in vm.shortOptions"
+							<extended-select ng-model="vm.word2" ng-options="o as o.word for o in vm.shortOptions"
 											 type-to-search="2"
 											 code-example-hook></extended-select>
 						</div>
 					</div>
 				</div>
-			</div>
-			<div class="row mb-3">
 				<div class="col-sm-6">
 					<div class="card">
 						<div class="card-header" id="resolve-options">Resolve options on search</div>
 						<div class="card-body">
-							<extended-select ng-model="vm.word4" ng-options="o as o.word for o in vm.resolvedOptions"
+							<extended-select ng-model="vm.word3" ng-options="o as o.word for o in vm.resolvedOptions"
 											 resolve-on-search="vm.resolveOnSearch(value, page)"
 											 code-example-hook></extended-select>
 							<p class="form-text">
@@ -142,11 +130,13 @@
 						</div>
 					</div>
 				</div>
+			</div>
+			<div class="row mb-3">
 				<div class="col-sm-6">
 					<div class="card">
 						<div class="card-header" id="add-option">Allow user to add an option</div>
 						<div class="card-body">
-							<extended-select ng-model="vm.word5" ng-options="o as o.word for o in vm.emptyOptions"
+							<extended-select ng-model="vm.word4" ng-options="o as o.word for o in vm.emptyOptions"
 											 add-option="vm.addOptionCallback(value)"
 											 code-example-hook></extended-select>
 							<p class="form-text">
@@ -157,13 +147,11 @@
 						</div>
 					</div>
 				</div>
-			</div>
-			<div class="row mb-3">
 				<div class="col-sm-6">
 					<div class="card">
 						<div class="card-header" id="deselect">Allow user to deselect an selected option</div>
 						<div class="card-body">
-							<extended-select ng-model="vm.word6" ng-options="o as o.word for o in vm.shortOptions"
+							<extended-select ng-model="vm.word5" ng-options="o as o.word for o in vm.shortOptions"
 											 deselectable code-example-hook></extended-select>
 						</div>
 					</div>
@@ -174,7 +162,7 @@
 					<div class="card">
 						<div class="card-header" id="disabled-state">Disabled state</div>
 						<div class="card-body">
-							<extended-select ng-model="vm.word7" ng-options="o as o.word for o in vm.shortOptions"
+							<extended-select ng-model="vm.word6" ng-options="o as o.word for o in vm.shortOptions"
 											 ng-disabled="true"
 											 code-example-hook></extended-select>
 						</div>
@@ -197,7 +185,7 @@
 						<div class="card-header" id="size-sm">Combined with bootstrap "custom-select-sm" class</div>
 						<div class="card-body">
 							<extended-select ng-model="vm.word8" ng-options="o as o.word for o in vm.shortOptions"
-											 class="custom-select-sm"
+											 class="custom-select-sm" deselectable
 											 code-example-hook></extended-select>
 						</div>
 					</div>
@@ -207,7 +195,7 @@
 						<div class="card-header" id="size-lg">Combined with bootstrap "custom-select-lg" class</div>
 						<div class="card-body">
 							<extended-select ng-model="vm.word9" ng-options="o as o.word for o in vm.shortOptions"
-											 class="custom-select-lg"
+											 class="custom-select-lg" deselectable
 											 code-example-hook></extended-select>
 						</div>
 					</div>
@@ -232,10 +220,47 @@
 						<div class="card-body form-inline">
 							<div class="form-group">
 								<label>Select an option</label>
-								<extended-select ng-model="vm.word" ng-options="o as o.word for o in vm.options"
+								<extended-select ng-model="vm.word10"
+												 ng-options="o as o.word for o in vm.shortOptions"
 												 class="ml-2">
 								</extended-select>
 							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row mb-3">
+				<div class="col-sm-6">
+					<div class="card">
+						<div class="card-header" id="custom-placeholder">Custom placeholder</div>
+						<div class="card-body">
+							<extended-select ng-model="vm.word11" ng-options="o as o.word for o in vm.shortOptions"
+											 placeholder="Custom placeholder text"
+											 code-example-hook></extended-select>
+						</div>
+					</div>
+				</div>
+				<div class="col-sm-6">
+					<div class="card">
+						<div class="card-header" id="option-template">Custom option template</div>
+						<div class="card-body">
+							<extended-select ng-model="vm.word12" ng-options="o as o.word for o in vm.shortOptions"
+											 code-example-hook>
+								<before-option>
+									<i class="fa fa-fw">
+										{{$extendedSelect.isOpen && !$isOption && (!$option.value || $extendedSelect.search.length) ? '_' : $option.label[0]}}
+									</i>
+								</before-option>
+							</extended-select>
+							<p class="form-text">
+								You can use <code>before-option</code> transclude slot to display something before
+								each option. It is also displayed before current select value.<br/>
+								There are some variables passed to transcluded element scope:<br/>
+								- <code>$option</code> providing you with each option value & label.<br/>
+								- <code>$isOption</code> which is true for select element and false for option
+								elements<br/>
+								- <code>$extendedSelect</code> extendedSelect component controller
+							</p>
 						</div>
 					</div>
 				</div>
@@ -244,7 +269,7 @@
 	</div>
 </div>
 <script type="text/javascript" src="../node_modules/angular/angular.min.js"></script>
-<script type="text/javascript" src="../node_modules/angularjs-bootstrap-4/dist/angularjs-bootstrap-4.min.js"></script>
+<script type="text/javascript" src="../node_modules/angularjs-bootstrap-4/dist/angularjs-bootstrap-4.js"></script>
 <script type="text/javascript" src="../dist/angularjs-bootstrap4-extended-select.js"></script>
 <script type="text/javascript" src="example.js"></script>
 </body>

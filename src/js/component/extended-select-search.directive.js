@@ -21,6 +21,7 @@
 				 * move selection or pick an option on keydown
 				 */
                 element.on('keydown', function(e) {
+                    e.stopPropagation();
                     if (!ctrl.optionsFiltered.length) {
                         if (e.which === 13) {
                             ctrl.addOptionAction();
@@ -51,12 +52,12 @@
                         case 13: // enter
                             if (angular.isDefined(ctrl.optionsFiltered[ctrl.activeIndex])) {
                                 ctrl.pickOption(ctrl.optionsFiltered[ctrl.activeIndex]);
-                                scope.$apply();
+                                scope.$parent.$apply();
                                 return;
                             }
                             break;
                     }
-                    scope.$digest();
+                    scope.$parent.$digest();
                 });
             }
         };

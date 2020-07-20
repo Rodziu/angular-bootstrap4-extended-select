@@ -109,10 +109,10 @@ angular@^1.8.0:
   resolved "https://registry.yarnpkg.com/angular/-/angular-1.8.0.tgz#b1ec179887869215cab6dfd0df2e42caa65b1b51"
   integrity sha512-VdaMx+Qk0Skla7B5gw77a8hzlcOakwF8mjlW13DpIWIDlfqwAbSSLfd8N/qZnzEmQF4jC4iofInd3gE7vL8ZZg==
 
-angularjs-bootstrap-4@^1.1.2:
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/angularjs-bootstrap-4/-/angularjs-bootstrap-4-1.1.2.tgz#7fc77c021cf66f75883536eaa0eaea3bea1fc7c8"
-  integrity sha512-G5sDkbBriBoS+KxvvA34YI0trIwOJRpA6/Yq6SP+LlssyYMlFiSpuFvSyzV1tRpgtUcm/1xDZt6Vh4fkOBeuFw==
+angularjs-bootstrap-4@^1.1.4:
+  version "1.1.4"
+  resolved "https://registry.yarnpkg.com/angularjs-bootstrap-4/-/angularjs-bootstrap-4-1.1.4.tgz#107604ac1794ac4d4df667f10939f01ecbb86fcd"
+  integrity sha512-3pmNDRSEy8X0R7MMRtMrp6boCwNntBtu1TcVZSuD6ZJeIFMEN87R0WnbPDs0nqHgj37brR597sJcRn0J12ehgA==
   dependencies:
     angular "^1.7.8"
     bootstrap "^4.3.1"

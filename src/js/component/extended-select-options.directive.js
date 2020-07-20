@@ -20,13 +20,15 @@
             controller: ['$element', 'angularBS', function($element, angularBS) {
                 const ctrl = this;
                 ctrl.$onChanges = function() { // it's always an activeIndex change
-                    const li = $element[0].querySelector(`li:nth-child(${ctrl.activeIndex + 1})`);
-                    if (li === null) {
+                    const item = $element[0].querySelector(
+                        `.dropdown-item:nth-child(${ctrl.activeIndex + 1})`
+                    );
+                    if (item === null) {
                         return;
                     }
-                    const top = li.offsetTop,
+                    const top = item.offsetTop,
                         scroll = $element[0].scrollTop,
-                        bot = angularBS.offset(li).height + top,
+                        bot = angularBS.offset(item).height + top,
                         ulHeight = angularBS.offset($element[0]).height;
                     if (scroll - top > 0) { // move it up
                         $element[0].scrollTop = top;

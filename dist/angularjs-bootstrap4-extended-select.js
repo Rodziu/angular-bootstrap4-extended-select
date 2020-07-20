@@ -70,6 +70,41 @@ angular.module('extendedSelect', ['angularBS.helpers', 'angularBS.dropdown']);
 
 /*
  * AngularJS extended select component.
+ * Copyright (c) 2016-2020 Rodziu <mateusz.rohde@gmail.com>
+ * License: MIT
+ */
+!(function() {
+    'use strict';
+
+    extendedSelectMarkResultController.$inject = ["$element"];
+    function extendedSelectMarkResultController($element) {
+        const ctrl = this;
+        ctrl.$doCheck = function() {
+            if (this.extendedSelect.search !== this._search) {
+                this._search = this.extendedSelect.search;
+                let html = this.label;
+                if (angular.isString(this._search) && this._search.length) {
+                    html = this.label.replace(new RegExp('(' + this._search + ')', 'gi'), '<u>$1</u>')
+                }
+                $element.html(html);
+            }
+        };
+    }
+
+    angular.module('extendedSelect').component('extendedSelectMarkResult', {
+        require: {
+            extendedSelect: '^extendedSelect'
+        },
+        bindings: {
+            label: '<'
+        },
+        controllerAs: 'vm',
+        controller: extendedSelectMarkResultController
+    })
+}());
+
+/*
+ * AngularJS extended select component.
  * Copyright (c) 2016-2019 Rodziu <mateusz.rohde@gmail.com>
  * License: MIT
  */
@@ -77,21 +112,46 @@ angular.module('extendedSelect', ['angularBS.helpers', 'angularBS.dropdown']);
     'use strict';
 
     /**
-	 * @ngdoc directive
-	 * @name extendedSelectDropdown
-	 */
-    function extendedSelectDropdown() {
+     * @ngdoc directive
+     * @name extendedSelectOption
+     */
+    function extendedSelectOption() {
         return {
             restrict: 'A',
-            link: function(scope, element) {
-                element.on('click', function(e) {
-                    e.stopPropagation(); // prevent dropdown from closing
-                });
+            require: '^extendedSelect',
+            link: function(scope, element, attrs, ctrl, transclude) {
+                if (transclude.isSlotFilled('beforeOption')) {
+                    transclude((clone, transcludedScope) => {
+                        transcludedScope.$extendedSelect = ctrl;
+                        transcludedScope.$option = scope['o'];
+                        transcludedScope.$isOption = true;
+                        transcludedScope.$isOpen = true;
+                        if (angular.isUndefined(scope['o'])) {
+                            transcludedScope.$isOption = false;
+                            if (ctrl.multiple) {
+                                transcludedScope.$option = {
+                                    value: scope['m'],
+                                    label: ctrl.getModelLabel(scope['m'])
+                                };
+                            } else {
+                                transcludedScope.$watch(() => {
+                                    return ctrl.ngModel;
+                                }, () => {
+                                    transcludedScope.$option = {
+                                        value: ctrl.ngModel,
+                                        label: ctrl.getModelLabel()
+                                    };
+                                });
+                            }
+                        }
+                        element.prepend(clone);
+                    }, null, 'beforeOption');
+                }
             }
         }
     }
 
-    angular.module('extendedSelect').directive('extendedSelectDropdown', extendedSelectDropdown);
+    angular.module('extendedSelect').directive('extendedSelectOption', extendedSelectOption);
 }());
 
 /*
@@ -116,13 +176,15 @@ angular.module('extendedSelect', ['angularBS.helpers', 'angularBS.dropdown']);
             controller: ['$element', 'angularBS', function($element, angularBS) {
                 const ctrl = this;
                 ctrl.$onChanges = function() { // it's always an activeIndex change
-                    const li = $element[0].querySelector(`li:nth-child(${ctrl.activeIndex + 1})`);
-                    if (li === null) {
+                    const item = $element[0].querySelector(
+                        `.dropdown-item:nth-child(${ctrl.activeIndex + 1})`
+                    );
+                    if (item === null) {
                         return;
                     }
-                    const top = li.offsetTop,
+                    const top = item.offsetTop,
                         scroll = $element[0].scrollTop,
-                        bot = angularBS.offset(li).height + top,
+                        bot = angularBS.offset(item).height + top,
                         ulHeight = angularBS.offset($element[0]).height;
                     if (scroll - top > 0) { // move it up
                         $element[0].scrollTop = top;
@@ -160,6 +222,7 @@ angular.module('extendedSelect', ['angularBS.helpers', 'angularBS.dropdown']);
 				 * move selection or pick an option on keydown
 				 */
                 element.on('keydown', function(e) {
+                    e.stopPropagation();
                     if (!ctrl.optionsFiltered.length) {
                         if (e.which === 13) {
                             ctrl.addOptionAction();
@@ -190,12 +253,12 @@ angular.module('extendedSelect', ['angularBS.helpers', 'angularBS.dropdown']);
                         case 13: // enter
                             if (angular.isDefined(ctrl.optionsFiltered[ctrl.activeIndex])) {
                                 ctrl.pickOption(ctrl.optionsFiltered[ctrl.activeIndex]);
-                                scope.$apply();
+                                scope.$parent.$apply();
                                 return;
                             }
                             break;
                     }
-                    scope.$digest();
+                    scope.$parent.$digest();
                 });
             }
         };
@@ -213,277 +276,282 @@ angular.module('extendedSelect', ['angularBS.helpers', 'angularBS.dropdown']);
 !(function() {
     'use strict';
 
-    extendedSelectComponentController.$inject = ["$element", "$attrs", "$scope", "$timeout", "extendedSelectOptions", "extendedSelect"];
-    function extendedSelectComponentController(
-        $element, $attrs, $scope, $timeout, extendedSelectOptions, extendedSelect
-    ) {
-        const ctrl = this,
-            transcludeElement = $element[0].querySelector('[ng-transclude]'),
-            ngOptions = 'ngOptions' in $attrs
-                ? extendedSelectOptions.parseNgOptions($attrs['ngOptions']) : null,
-            updateMultipleModel = function(newValue, removeValue) {
-                // sort selected options, so we get same result as in select element.
-                const sorted = [];
-                for (let i = 0; i < ctrl.options.length; i++) {
-                    if (
-                        (
-                            ctrl.isSelected(ctrl.options[i])
-							|| angular.equals(ctrl.options[i].value, newValue)
-                        )
-						&& !angular.equals(ctrl.options[i].value, removeValue)
-                    ) {
-                        sorted.push(ctrl.options[i].value);
+    /**
+     * @ngInject
+     */
+    class ExtendedSelectComponentController {
+        constructor($element, $attrs, $scope, $timeout, $transclude, extendedSelectOptions, extendedSelect) {
+            this.$element = $element;
+            this.$attrs = $attrs;
+            this.$scope = $scope;
+            this.$timeout = $timeout;
+            this.$transclude = $transclude;
+            this.extendedSelectOptions = extendedSelectOptions;
+            this.extendedSelect = extendedSelect;
+            //
+            this._ngOptions = 'ngOptions' in $attrs
+                ? extendedSelectOptions.parseNgOptions($attrs['ngOptions']) : null;
+            this._searchTimeout = null;
+        }
+
+        $onInit() {
+            this.options = [];
+            this.optionsFiltered = [];
+            this.activeIndex = -1;
+            this.search = '';
+            this.multiple = 'multiple' in this.$attrs;
+            if (!this.deselectable && 'deselectable' in this.$attrs && !this.$attrs.deselectable.length) {
+                this.deselectable = true;
+            }
+
+            this.addOptionLang = this.extendedSelect.addOptionLang;
+            this.loadMoreResultsLang = this.extendedSelect.loadMoreResultsLang;
+            this.typeToSearchText = this.extendedSelect.typeToSearchText;
+
+            if (angular.isUndefined(this.typeToSearch)) {
+                this.typeToSearch = this.extendedSelect.typeToSearch;
+            }
+            if (angular.isUndefined(this.searchByValue)) {
+                this.searchByValue = this.extendedSelect.searchByValue;
+            }
+            if (angular.isUndefined(this.placeholder)) {
+                this.placeholder = 'multiple' in this.$attrs
+                    ? this.extendedSelect.placeholderMultiple : this.extendedSelect.placeholder
+            }
+            if (this.multiple) {
+                this.ngModelCtrl.$isEmpty = function(value) {
+                    return !value || value.length === 0;
+                };
+            }
+            //
+            this.$attrs.$observe('placeholder', (value) => {
+                this.placeholder = value;
+            });
+            this.$attrs.$observe('disabled', (value) => {
+                this.isDisabled = value === true || angular.isString(value);
+            });
+            this.$attrs.$observe('readonly', (value) => {
+                this.isReadonly = value === true || angular.isString(value);
+            });
+            //
+            this.$element.on('click', () => {
+                const wasOpen = this.isOpen;
+                this.ngModelCtrl.$setTouched();
+                if (this.isDisabled || this.isReadonly) {
+                    this.isOpen = false;
+                } else {
+                    this.isOpen = this.multiple ? true : !this.isOpen;
+                }
+                if (!wasOpen && this.isOpen) {
+                    this.search = '';
+                    // reset active index
+                    this.activeIndex = -1;
+                    this.options.some((option, i) => {
+                        if (this.isSelected(option)) {
+                            this.activeIndex = i;
+                            if (!this.multiple) {
+                                return true; // break;
+                            }
+                        }
+                    });
+                }
+                this.$scope.$digest();
+                if (!wasOpen && this.isOpen) {
+                    this.searchElement[0].focus();
+                }
+            });
+        }
+
+        $doCheck() {
+            const options = [];
+            let pickLater;
+            this.$transclude((clone) => {
+                angular.forEach(clone, (optionElement) => {
+                    options.push({
+                        value: optionElement.value,
+                        label: optionElement.textContent
+                    })
+                })
+            }, null, 'option');
+            if (this._ngOptions !== null) {
+                const optionObjects = this._ngOptions.valuesFn(this.$scope.$parent);
+                optionObjects.forEach((optionObject, key) => {
+                    const locals = this._ngOptions.getLocals(key, optionObject);
+                    options.push({
+                        value: this._ngOptions.valueFn(this.$scope.$parent, locals),
+                        label: this._ngOptions.displayFn(this.$scope.$parent, locals)
+                    });
+                    if (this._addOptionCalled && options[options.length - 1].label === this.search) {
+                        pickLater = options[options.length - 1];
+                        this._addOptionCalled = false;
                     }
+                });
+            }
+            if (!angular.equals(options, this.options)) {
+                this.options = options;
+                if (pickLater) {
+                    // in multiple mode, we need to wait until new option is added to this.options
+                    // before selecting it
+                    this.pickOption(pickLater);
                 }
-                if (!angular.equals(ctrl.ngModel, sorted)) {
-                    ctrl.ngModel = sorted;
+                this.filterData();
+            }
+            this.isSmall = this.$element.hasClass('custom-select-sm');
+            this.isLarge = this.$element.hasClass('custom-select-lg');
+        }
+
+        _updateMultipleModel(newValue, removeValue) {
+            // sort selected options, so we get same result as in select element.
+            const sorted = [];
+            this.options.forEach((option) => {
+                if (
+                    (
+                        this.isSelected(option)
+                        || angular.equals(option.value, newValue)
+                    )
+                    && !angular.equals(option.value, removeValue)
+                ) {
+                    sorted.push(option.value);
                 }
-            };
-        /**
-		 * @returns {*}
-		 */
-        ctrl.getModelValue = function(value) {
+            });
+            if (!angular.equals(this.ngModel, sorted)) {
+                this.ngModel = sorted;
+            }
+        }
+
+        filterData() {
+            if (angular.isUndefined(this.search)) {
+                angular.copy(this.options, this.optionsFiltered);
+                return;
+            }
+            angular.copy([], this.optionsFiltered);
+            if (this.search.length < this.typeToSearch) {
+                return;
+            }
+            const search = this.search.toLowerCase();
+            this.options.forEach((option) => {
+                if (
+                    !!~option.label.toLowerCase().indexOf(search)
+                    || (this.searchByValue && !!~option.value.toLowerCase().indexOf(search))
+                ) {
+                    this.optionsFiltered.push(option);
+                }
+            });
+        }
+
+        isSelected(option) {
+            if (angular.isUndefined(this.ngModel)) {
+                return false;
+            }
+            if (this.multiple) {
+                return !!~this.ngModel.indexOf(option.value);
+            }
+            return angular.equals(option.value, this.ngModel);
+        }
+
+        getModelLabel(value) {
             if (angular.isUndefined(value)) {
-                value = ctrl.ngModel;
+                value = this.ngModel;
             }
-            for (let o = 0; o < ctrl.options.length; o++) {
-                if (angular.equals(ctrl.options[o].value, value)) {
-                    return ctrl.options[o].label;
-                }
-            }
-            return false;
-        };
-        let searchTimeout = null,
-            lastSearchValue;
-        /**
-		 * Search change callback
-		 */
-        ctrl.searchFn = function(page) {
+            const option = this.options.find((option) => {
+                return angular.equals(option.value, value);
+            });
+            return option ? option.label : '';
+        }
+
+        searchFn(page) {
             if (angular.isUndefined(page)) {
-                ctrl.activeIndex = ctrl.options.length ? 0 : -1;
+                this.activeIndex = this.options.length ? 0 : -1;
             }
-            ctrl.hasNextPage = false;
-            if (angular.isFunction(ctrl.resolveOnSearch)) {
-                ctrl.page = page || 1;
-                if (angular.isDefined(ctrl.search) && ctrl.search.length) {
-                    const timeout = angular.isUndefined(lastSearchValue) ? 0 : 750;
-                    if (searchTimeout !== null) {
-                        $timeout.cancel(searchTimeout);
+            this.hasNextPage = false;
+            this.filterData();
+            if (angular.isFunction(this.resolveOnSearch)) {
+                this.page = page || 1;
+                if (angular.isDefined(this.search) && this.search.length) {
+                    const timeout = angular.isUndefined(this._lastSearchValue) ? 0 : 750;
+                    if (this._searchTimeout !== null) {
+                        this.$timeout.cancel(this._searchTimeout);
                     }
-                    lastSearchValue = ctrl.search;
-                    ctrl.loading = true;
-                    searchTimeout = $timeout(function() {
-                        searchTimeout = null;
-                        ctrl.resolveOnSearch({value: ctrl.search, page: ctrl.page}).
-                            then(function(response) {
-                                lastSearchValue = undefined;
-                                ctrl.loading = false;
-                                ctrl.hasNextPage = response && !!response.hasNextPage;
-                            }).
-                            catch(angular.noop);
+                    this._lastSearchValue = this.search;
+                    this.loading = true;
+                    this._searchTimeout = this.$timeout(() => {
+                        this._searchTimeout = null;
+                        this.resolveOnSearch({value: this.search, page: this.page}).then((response) => {
+                            this._lastSearchValue = undefined;
+                            this.loading = false;
+                            this.hasNextPage = response && !!response.hasNextPage;
+                            this.filterData();
+                        }).catch(angular.noop);
                     }, timeout);
                 }
             }
-        };
-        /**
-		 * @param option
-		 */
-        ctrl.pickOption = function(option) {
-            if (ctrl.multiple) {
-                if (angular.isUndefined(ctrl.ngModel)) {
-                    ctrl.ngModel = [];
+        }
+
+        pickOption(option) {
+            if (this.multiple) {
+                if (angular.isUndefined(this.ngModel)) {
+                    this.ngModel = [];
                 }
-                if (!~ctrl.ngModel.indexOf(option.value)) {
-                    updateMultipleModel(option.value);
+                if (!~this.ngModel.indexOf(option.value)) {
+                    this._updateMultipleModel(option.value);
                 }
-                ctrl.activeIndex = -1;
-                ctrl.search = '';
+                this.activeIndex = -1;
+                this.search = '';
             } else {
-                ctrl.isOpen = false;
-                ctrl.ngModel = option.value;
-                ctrl.activeIndex = ctrl.options.indexOf(option);
+                this.isOpen = false;
+                this.ngModel = option.value;
+                this.activeIndex = this.options.indexOf(option);
             }
-            ctrl.hasNextPage = false;
-            ctrl.ngModelCtrl.$setViewValue(ctrl.ngModel);
-        };
-        /**
-		 * @param option
-		 * @returns {boolean}
-		 */
-        ctrl.isSelected = function(option) {
-            if (angular.isUndefined(ctrl.ngModel)) {
-                return false;
-            }
-            if (ctrl.multiple) {
-                return !!~ctrl.ngModel.indexOf(option.value);
-            }
-            return angular.equals(option.value, ctrl.ngModel);
-        };
-        /**
-		 * @param value
-		 */
-        ctrl.deselect = function(value) {
-            if (ctrl.multiple) {
-                updateMultipleModel(undefined, value);
+            this.hasNextPage = false;
+            this.ngModelCtrl.$setViewValue(this.ngModel);
+        }
+
+        deselect(value) {
+            if (this.multiple) {
+                this._updateMultipleModel(undefined, value);
             } else {
-                ctrl.ngModel = undefined;
+                this.ngModel = undefined;
             }
-            ctrl.activeIndex = -1;
-            ctrl.ngModelCtrl.$setViewValue(ctrl.ngModel);
-        };
-        /**
-		 */
-        ctrl.addOptionAction = function() {
-            if (angular.isFunction(ctrl.addOption) && ctrl.search.length) {
-                let found = false;
-                for (let o = 0; o < ctrl.options.length; o++) {
-                    if (ctrl.options[o].label === ctrl.search) {
-                        ctrl.pickOption(ctrl.options[o]);
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
-                    ctrl.addOption({value: ctrl.search});
-                    ctrl.addOptionCalled = true;
+            this.activeIndex = -1;
+            this.ngModelCtrl.$setViewValue(this.ngModel);
+        }
+
+        addOptionAction() {
+            if (angular.isFunction(this.addOption) && this.search.length) {
+                const option = this.options.find((option) => {
+                    return option.label === this.search;
+                });
+                if (option) {
+                    this.pickOption(option);
+                } else {
+                    this.addOption({value: this.search});
+                    this._addOptionCalled = true;
                     // we set this flag, so we can update ngModel with proper option,
                     // which will be generated on next digest cycle
                 }
             }
-        };
-        /**
-		 */
-        $element.on('click', function() {
-            const wasOpen = ctrl.isOpen;
-            ctrl.ngModelCtrl.$setTouched();
-            if (ctrl.isDisabled || ctrl.isReadonly) {
-                ctrl.isOpen = false;
-            } else {
-                ctrl.isOpen = ctrl.multiple ? true : !ctrl.isOpen;
-            }
-            if (!wasOpen && ctrl.isOpen) {
-                ctrl.search = '';
-                // reset active index
-                ctrl.activeIndex = -1;
-                for (let i = 0; i < ctrl.options.length; i++) {
-                    if (ctrl.isSelected(ctrl.options[i])) {
-                        ctrl.activeIndex = i;
-                        if (!ctrl.multiple) {
-                            break;
-                        }
-                    }
-                }
-            }
-            $scope.$digest();
-            if (!wasOpen && ctrl.isOpen) {
-                ctrl.searchElement[0].focus();
-            }
-        });
-        /**
-		 */
-        $attrs.$observe('placeholder', function(value) {
-            ctrl.placeholder = value;
-        });
-        $attrs.$observe('disabled', function(value) {
-            ctrl.isDisabled = value === true || angular.isString(value);
-        });
-        $attrs.$observe('readonly', function(value) {
-            ctrl.isReadonly = value === true || angular.isString(value);
-        });
-        /**
-		 * Init
-		 */
-        ctrl.$onInit = function() {
-            ctrl.options = [];
-            ctrl.optionsFiltered = [];
-            ctrl.activeIndex = -1;
-            ctrl.search = '';
-            ctrl.multiple = 'multiple' in $attrs;
-            if (!ctrl.deselectable && 'deselectable' in $attrs && !$attrs.deselectable.length) {
-                ctrl.deselectable = true;
-            }
-            ctrl.addOptionLang = extendedSelect.addOptionLang;
-            ctrl.loadMoreResultsLang = extendedSelect.loadMoreResultsLang;
-            if (angular.isUndefined(ctrl.typeToSearch)) {
-                ctrl.typeToSearch = extendedSelect.typeToSearch;
-            }
-            ctrl.typeToSearchText = extendedSelect.typeToSearchText;
-            if (angular.isUndefined(ctrl.searchByValue)) {
-                ctrl.searchByValue = extendedSelect.searchByValue;
-            }
-            if (angular.isUndefined(ctrl.placeholder)) {
-                ctrl.placeholder = 'multiple' in $attrs
-                    ? extendedSelect.placeholderMultiple : extendedSelect.placeholder
-            }
-            if ($element.hasClass('custom-select-sm')) {
-                $element.children().addClass('custom-select-sm');
-                $element.removeClass('custom-select-sm');
-            }
-            if (ctrl.multiple) {
-                /**
-				 * @var ngModelCtrl
-				 * @type {{}}
-				 */
-                ctrl.ngModelCtrl.$isEmpty = function(value) {
-                    return !value || value.length === 0;
-                };
-            }
-        };
-        /**
-		 * Check
-		 */
-        ctrl.$doCheck = function() {
-            const optionElements = transcludeElement.querySelectorAll('option'),
-                options = [];
-            let pickLater;
-            for (let i = 0; i < optionElements.length; i++) {
-                // noinspection JSCheckFunctionSignatures
-                const option = angular.element(optionElements[i]);
-                options.push({
-                    value: option.val(),
-                    label: option.text().trim()
-                });
-            }
-            if (ngOptions !== null) {
-                const optionObjects = ngOptions.valuesFn($scope.$parent);
-                for (let i = 0; i < optionObjects.length; i++) {
-                    const locals = ngOptions.getLocals(i, optionObjects[i]);
-                    options.push({
-                        value: ngOptions.valueFn($scope.$parent, locals),
-                        label: ngOptions.displayFn($scope.$parent, locals)
-                    });
-                    if (ctrl.addOptionCalled && options[options.length - 1].label === ctrl.search) {
-                        pickLater = options[options.length - 1];
-                        ctrl.addOptionCalled = false;
-                    }
-                }
-            }
-            if (!angular.equals(options, ctrl.options)) {
-                ctrl.options = options;
-                if (angular.isDefined(pickLater)) {
-                    // in multiple mode, we need to wait until new option is added to ctrl.options
-                    // before selecting it
-                    ctrl.pickOption(pickLater);
-                }
-            }
-            ctrl.isSmall = $element.hasClass('custom-select-sm');
-            ctrl.isLarge = $element.hasClass('custom-select-lg');
-        };
+        }
     }
+    ExtendedSelectComponentController.$inject = ["$element", "$attrs", "$scope", "$timeout", "$transclude", "extendedSelectOptions", "extendedSelect"];
 
     /**
-	 * @ngdoc component
-	 * @name extendedSelect
-	 *
-	 * @param {expression} ngModel
-	 * @param {expression|function} addOption
-	 * @param {expression|function} resolveOnSearch
-	 * @param {expression} deselectable
-	 * @param {expression|number} typeToSearch
-	 * @param {expression|boolean} searchByValue
-	 * @param {String} placeholder
-	 * @parma {String} multiple
-	 */
+     * @ngdoc component
+     * @name beforeOption
+     */
+
+    /**
+     * @ngdoc component
+     * @name extendedSelect
+     *
+     * @param {expression} ngModel
+     * @param {expression|function} addOption
+     * @param {expression|function} resolveOnSearch
+     * @param {expression} deselectable
+     * @param {expression|number} typeToSearch
+     * @param {expression|boolean} searchByValue
+     * @param {String} placeholder
+     * @parma {String} multiple
+     */
     angular.module('extendedSelect').component('extendedSelect', {
         require: {
             ngModelCtrl: 'ngModel'
@@ -496,83 +564,15 @@ angular.module('extendedSelect', ['angularBS.helpers', 'angularBS.dropdown']);
             typeToSearch: '<?',
             searchByValue: '<?'
         },
-        transclude: true,
-        templateUrl: ['$attrs', function($attrs) {
-            if ('multiple' in $attrs) {
-                return 'src/templates/extended-select-multiple.html';
-            }
-            return 'src/templates/extended-select.html';
-        }],
+        transclude: {
+            option: '?option',
+            beforeOption: '?beforeOption'
+        },
+        templateUrl: 'src/templates/extended-select.html',
         controllerAs: 'ctrl',
-        controller: extendedSelectComponentController
+        controller: ExtendedSelectComponentController
     });
 
-}());
-
-/*
- * AngularJS extended select component.
- * Copyright (c) 2016-2019 Rodziu <mateusz.rohde@gmail.com>
- * License: MIT
- */
-!(function() {
-    'use strict';
-
-    function extendedSelectFilter() {
-        return function(options, search, typeToSearch, searchByValue) {
-            if (angular.isUndefined(search)) {
-                return options;
-            }
-            if (search.length < typeToSearch) {
-                return [];
-            }
-            const ret = [];
-            search = search.toLowerCase();
-            for (let o = 0; o < options.length; o++) {
-                if (
-                    !!~options[o].label.toLowerCase().indexOf(search)
-					|| (searchByValue && !!~options[o].value.toLowerCase().indexOf(search))
-                ) {
-                    ret.push(options[o]);
-                }
-            }
-            return ret;
-        };
-    }
-
-    /**
-	 * @ngdoc filter
-	 * @name extendedSelectFilter
-	 * @description Filter visible options
-	 */
-    angular.module('extendedSelect').filter('extendedSelectFilter', extendedSelectFilter);
-
-}());
-
-/*
- * AngularJS extended select component.
- * Copyright (c) 2016-2019 Rodziu <mateusz.rohde@gmail.com>
- * License: MIT
- */
-!(function() {
-    'use strict';
-
-    extendedSelectSearchFilter.$inject = ["$sce"];
-    function extendedSelectSearchFilter($sce) {
-        return function(input, search) {
-            if (search.length) {
-                input = input.replace(new RegExp('(' + search + ')', 'gi'), '<u>$1</u>');
-            }
-            // noinspection JSUnresolvedFunction
-            return $sce.trustAsHtml(input);
-        };
-    }
-
-    /**
-	 * @ngdoc filter
-	 * @name extendedSelectSearch
-	 * @description Underscore results in dropdown
-	 */
-    angular.module('extendedSelect').filter('extendedSelectSearch', extendedSelectSearchFilter);
 }());
 
 /*
@@ -635,5 +635,4 @@ angular.module('extendedSelect', ['angularBS.helpers', 'angularBS.dropdown']);
     angular.module('extendedSelect').factory('extendedSelectOptions', extendedSelectOption);
 }());
 
-angular.module('extendedSelect').run(['$templateCache', function($templateCache) {$templateCache.put('src/templates/extended-select-multiple.html','<div class="dropdown custom-select angular-extended-select" bs-dropdown="ctrl.isOpen" ng-class="{\'custom-select-sm\': ctrl.isSmall, \'custom-select-lg\': ctrl.isLarge}" ng-disabled="ctrl.isDisabled" ng-readonly="ctrl.isReadonly"><span class="caret"></span><ul class="extended-select-multiple"><li ng-show="!ctrl.ngModel.length && !ctrl.isOpen">{{ctrl.placeholder}}</li><li ng-repeat="m in ctrl.ngModel" class="ext-select-choice" ng-if="ctrl.getModelValue(m)"><span>{{::ctrl.getModelValue(m)}}</span> <button type="button" class="close" ng-click="$event.stopPropagation();ctrl.deselect(m)" ng-if="!ctrl.isDisabled && !ctrl.isReadonly">&times;</button></li><li ng-show="ctrl.isOpen"><input type="text" ng-model="ctrl.search" extended-select-search ng-change="ctrl.searchFn()" ng-disabled="attr.disabled"> <a ng-click="$event.stopPropagation();ctrl.addOptionAction()" class="label label-success" ng-show="ctrl.addOption && ctrl.search">{{::ctrl.addOptionLang}}</a></li></ul><div class="clearfix"></div><div class="dropdown-menu" extended-select-dropdown ng-hide="!ctrl.typeToSearch && !ctrl.options.length"><ul class="dropdown-menu" extended-select-options="ctrl.activeIndex"><li class="dropdown-item" ng-repeat="o in ctrl.optionsFiltered = (ctrl.options | extendedSelectFilter:ctrl.search:ctrl.typeToSearch:ctrl.searchByValue)" ng-click="ctrl.pickOption(o)" ng-class="{\'active\': $index == ctrl.activeIndex, \'selected\': ctrl.isSelected(o)}"><a ng-bind-html="o.label | extendedSelectSearch:ctrl.search"></a></li><li class="dropdown-item" ng-show="ctrl.typeToSearch && ctrl.search.length < ctrl.typeToSearch"><a>{{::ctrl.typeToSearchText}}</a></li><li class="dropdown-item" ng-show="ctrl.resolveOnSearch && ctrl.hasNextPage && (!ctrl.typeToSearch || ctrl.search.length >= ctrl.typeToSearch)"><a class="text-primary" ng-click="ctrl.searchFn(ctrl.page + 1)">{{::ctrl.loadMoreResultsLang}}</a></li></ul></div><div ng-transclude style="display:none"></div></div>');
-$templateCache.put('src/templates/extended-select.html','<div class="dropdown custom-select angular-extended-select" bs-dropdown="ctrl.isOpen" ng-class="{\'custom-select-sm\': ctrl.isSmall, \'custom-select-lg\': ctrl.isLarge}" ng-disabled="ctrl.isDisabled" ng-readonly="ctrl.isReadonly"><a class="deselect" ng-if="ctrl.deselectable && ctrl.getModelValue() && !ctrl.isDisabled && !ctrl.isReadonly" ng-click="ctrl.deselect()">&times;</a> {{ctrl.getModelValue() || ctrl.placeholder}}<div class="clearfix"></div><div class="dropdown-menu" extended-select-dropdown><div ng-class="{\'input-group input-group-sm\': ctrl.addOption}"><input type="text" class="form-control form-control-sm" ng-model="ctrl.search" ng-change="ctrl.searchFn()" extended-select-search> <span ng-show="ctrl.loading"><i class="fa fa-spinner fa-spin ext-select-loading"></i></span> <span class="input-group-append" ng-if="ctrl.addOption"><button type="button" class="btn btn-success" ng-click="$event.stopPropagation();ctrl.addOptionAction()">{{::ctrl.addOptionLang}}</button></span></div><ul class="dropdown-menu" extended-select-options="ctrl.activeIndex"><li class="dropdown-item" ng-repeat="o in ctrl.optionsFiltered = (ctrl.options | extendedSelectFilter:ctrl.search:ctrl.typeToSearch:ctrl.searchByValue)" ng-click="ctrl.pickOption(o)" ng-class="{\'active\': $index == ctrl.activeIndex}"><a ng-bind-html="o.label | extendedSelectSearch:ctrl.search"></a></li><li class="dropdown-item" ng-show="ctrl.typeToSearch && ctrl.search.length < ctrl.typeToSearch"><a>{{::ctrl.typeToSearchText}}</a></li><li class="dropdown-item" ng-show="ctrl.resolveOnSearch && ctrl.hasNextPage && (!ctrl.typeToSearch || ctrl.search.length >= ctrl.typeToSearch)"><a href="javascript:" class="text-primary" ng-click="ctrl.searchFn(ctrl.page + 1)">{{::ctrl.loadMoreResultsLang}}</a></li></ul></div><div ng-transclude style="display:none"></div></div>');}]);
+angular.module('extendedSelect').run(['$templateCache', function($templateCache) {$templateCache.put('src/templates/extended-select.html','<div class="dropdown custom-select angular-extended-select" bs-dropdown="ctrl.isOpen" ng-class="{\'custom-select-sm\': ctrl.isSmall, \'custom-select-lg\': ctrl.isLarge}" ng-disabled="ctrl.isDisabled" ng-readonly="ctrl.isReadonly"><div class="d-flex flex-row-reverse align-items-center" ng-if="::!ctrl.multiple"><div class="d-flex"><div ng-show="ctrl.loading" class="flex-fill pl-1"><i class="fa fa-spinner fa-spin"></i></div><a class="text-success flex-fill pl-1" ng-click="$event.stopPropagation();ctrl.addOptionAction()" ng-if="ctrl.addOption && ctrl.search" title="{{::ctrl.addOptionLang}}"><i class="fa fa-plus"></i></a> <a class="text-danger flex-fill pl-1" ng-click="ctrl.deselect()" ng-if="ctrl.deselectable && ctrl.getModelLabel() && !ctrl.isDisabled && !ctrl.isReadonly"><i class="fa fa-times"></i></a></div><div class="d-flex flex-grow-1" extended-select-option><div ng-show="!ctrl.isOpen" class="text-nowrap" ng-class="{placeholder: !ctrl.ngModel}">{{ctrl.getModelLabel() || ctrl.placeholder}}</div><input ng-show="ctrl.isOpen" class="flex-grow-1" type="text" ng-model="ctrl.search" ng-change="ctrl.searchFn()" placeholder="{{ctrl.getModelLabel() || ctrl.placeholder}}" extended-select-search></div></div><div class="d-flex flex-row-reverse align-items-center" ng-if="::ctrl.multiple"><div class="d-flex"><div ng-show="ctrl.loading" class="flex-fill pl-1"><i class="fa fa-spinner fa-spin"></i></div></div><div class="d-flex flex-grow-1 flex-wrap"><div ng-show="!ctrl.ngModel.length && !ctrl.isOpen" class="text-nowrap placeholder">{{ctrl.placeholder}}</div><div class="d-flex extended-select-choice" ng-repeat="m in ctrl.ngModel" ng-if="ctrl.getModelLabel(m)"><span class="d-flex" extended-select-option>{{::ctrl.getModelLabel(m)}}</span> <button type="button" class="close pl-1" ng-click="$event.stopPropagation();ctrl.deselect(m)" ng-if="!ctrl.isDisabled && !ctrl.isReadonly"><i class="fa fa-times"></i></button></div><input ng-show="ctrl.isOpen" class="flex-grow-1" type="text" ng-model="ctrl.search" ng-change="ctrl.searchFn()" placeholder="{{ctrl.ngModel.length ? \'\': ctrl.placeholder}}" extended-select-search> <a class="text-success" ng-click="$event.stopPropagation();ctrl.addOptionAction()" ng-if="ctrl.addOption && ctrl.search" title="{{::ctrl.addOptionLang}}"><i class="fa fa-plus"></i></a></div></div><div class="dropdown-menu" ng-click="$event.stopPropagation()" ng-hide="!ctrl.typeToSearch && !ctrl.options.length" extended-select-options="ctrl.activeIndex"><a href="javascript:" class="dropdown-item" ng-repeat="o in ctrl.optionsFiltered" ng-click="ctrl.pickOption(o)" ng-class="{active: $index == ctrl.activeIndex, selected: ctrl.isSelected(o)}" extended-select-option><extended-select-mark-result label="o.label"></extended-select-mark-result></a> <span class="dropdown-item-text" ng-show="ctrl.typeToSearch && ctrl.search.length < ctrl.typeToSearch">{{::ctrl.typeToSearchText}}</span> <a href="javascript:" class="dropdown-item text-primary" ng-show="ctrl.resolveOnSearch && ctrl.hasNextPage && (!ctrl.typeToSearch || ctrl.search.length >= ctrl.typeToSearch)" ng-click="ctrl.searchFn(ctrl.page + 1)">{{::ctrl.loadMoreResultsLang}}</a></div></div>');}]);

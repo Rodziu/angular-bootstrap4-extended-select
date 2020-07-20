@@ -73,8 +73,7 @@
 
   gulp.task('watch', function() {
     [
-      ['src/templates/**.html', 'templates'],
-      ['src/js/**/*.js', 'js'],
+      [['src/templates/**.html', 'src/js/**/*.js'], 'js'],
       ['src/scss/*.scss', 'scss'],
     ].forEach(([src, task]) => {
       gulp.watch(src, {}, gulp.series(task));
