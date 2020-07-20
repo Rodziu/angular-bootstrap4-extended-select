@@ -212,11 +212,15 @@ angular.module('extendedSelect', ['angularBS.helpers', 'angularBS.dropdown']);
 	 * @name extendedSelectSearch
 	 * @description search element
 	 */
-    function extendedSelectSearchDirective() {
+    extendedSelectSearchDirective.$inject = ["$injector"];
+    function extendedSelectSearchDirective($injector) {
         return {
             restrict: 'A',
             require: '^extendedSelect',
             link: function(scope, element, attrs, ctrl) {
+                if ($injector.has('$animate')) {
+                    $injector.get('$animate').enabled(element, false);
+                }
                 ctrl.searchElement = element;
                 /**
 				 * move selection or pick an option on keydown
