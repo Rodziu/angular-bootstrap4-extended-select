@@ -85,6 +85,7 @@
                             }
                         }
                     });
+                    this.filterData();
                 }
                 this.$scope.$digest();
                 if (!wasOpen && this.isOpen) {

@@ -44,9 +44,6 @@ extended-select {
   }
 
   > .d-flex { // select contents
-    before-option {
-      margin-right: $spacer-1;
-    }
     .placeholder {
       color: $input-placeholder-color;
     }
@@ -84,6 +81,10 @@ extended-select {
         }
       }
     }
+  }
+
+  before-option {
+    margin-right: $spacer-1;
   }
 
   .dropdown-menu {

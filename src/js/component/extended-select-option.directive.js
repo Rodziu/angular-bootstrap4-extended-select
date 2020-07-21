@@ -20,7 +20,6 @@
                         transcludedScope.$extendedSelect = ctrl;
                         transcludedScope.$option = scope['o'];
                         transcludedScope.$isOption = true;
-                        transcludedScope.$isOpen = true;
                         if (angular.isUndefined(scope['o'])) {
                             transcludedScope.$isOption = false;
                             if (ctrl.multiple) {

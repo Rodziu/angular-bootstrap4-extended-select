@@ -31,8 +31,6 @@ extended-select.custom-select-lg, extended-select.custom-select-sm {
     color: #6c757d;
     background-color: #e9ecef;
     cursor: default; }
-  .angular-extended-select > .d-flex before-option {
-    margin-right: 0.25rem; }
   .angular-extended-select > .d-flex .placeholder {
     color: #6c757d; }
   .angular-extended-select > .d-flex input {
@@ -57,6 +55,8 @@ extended-select.custom-select-lg, extended-select.custom-select-sm {
       align-items: center; }
       .angular-extended-select > .d-flex > .flex-wrap .extended-select-choice > button {
         font-size: 1rem; }
+  .angular-extended-select before-option {
+    margin-right: 0.25rem; }
   .angular-extended-select .dropdown-menu {
     cursor: auto;
     width: calc(100% + 2px);

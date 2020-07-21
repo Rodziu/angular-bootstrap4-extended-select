@@ -21,7 +21,7 @@
                 <i class="fa fa-times"></i>
             </a>
         </div>
-        <div class="d-flex flex-grow-1" extended-select-option>
+        <div class="d-flex flex-grow-1 align-items-center" extended-select-option>
             <div ng-show="!ctrl.isOpen" class="text-nowrap" ng-class="{placeholder: !ctrl.ngModel}">
                 {{ctrl.getModelLabel() || ctrl.placeholder}}
             </div>
@@ -62,7 +62,7 @@
     <!-- options -->
     <div class="dropdown-menu" ng-click="$event.stopPropagation()"
          ng-hide="!ctrl.typeToSearch && !ctrl.options.length" extended-select-options="ctrl.activeIndex">
-        <a href="javascript:" class="dropdown-item"
+        <a href="javascript:" class="dropdown-item d-flex align-items-center"
            ng-repeat="o in ctrl.optionsFiltered"
            ng-click="ctrl.pickOption(o)"
            ng-class="{active: $index == ctrl.activeIndex, selected: ctrl.isSelected(o)}"
