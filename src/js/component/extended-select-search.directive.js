@@ -19,7 +19,7 @@
                 if ($injector.has('$animate')) {
                     $injector.get('$animate').enabled(element, false);
                 }
-                ctrl.searchElement = element;
+                element[0].focus();
                 /**
 				 * move selection or pick an option on keydown
 				 */

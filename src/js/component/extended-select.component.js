@@ -64,34 +64,6 @@
             this.$attrs.$observe('readonly', (value) => {
                 this.isReadonly = value === true || angular.isString(value);
             });
-            //
-            this.$element.on('click', () => {
-                const wasOpen = this.isOpen;
-                this.ngModelCtrl.$setTouched();
-                if (this.isDisabled || this.isReadonly) {
-                    this.isOpen = false;
-                } else {
-                    this.isOpen = this.multiple ? true : !this.isOpen;
-                }
-                if (!wasOpen && this.isOpen) {
-                    this.search = '';
-                    // reset active index
-                    this.activeIndex = -1;
-                    this.options.some((option, i) => {
-                        if (this.isSelected(option)) {
-                            this.activeIndex = i;
-                            if (!this.multiple) {
-                                return true; // break;
-                            }
-                        }
-                    });
-                    this.filterData();
-                }
-                this.$scope.$digest();
-                if (!wasOpen && this.isOpen) {
-                    this.searchElement[0].focus();
-                }
-            });
         }
 
         $doCheck() {
@@ -130,6 +102,30 @@
             }
             this.isSmall = this.$element.hasClass('custom-select-sm');
             this.isLarge = this.$element.hasClass('custom-select-lg');
+        }
+
+        open() {
+            const wasOpen = this.isOpen;
+            this.ngModelCtrl.$setTouched();
+            if (this.isDisabled || this.isReadonly) {
+                this.isOpen = false;
+            } else {
+                this.isOpen = this.multiple ? true : !this.isOpen;
+            }
+            if (!wasOpen && this.isOpen) {
+                this.search = '';
+                // reset active index
+                this.activeIndex = -1;
+                this.options.some((option, i) => {
+                    if (this.isSelected(option)) {
+                        this.activeIndex = i;
+                        if (!this.multiple) {
+                            return true; // break;
+                        }
+                    }
+                });
+                this.filterData();
+            }
         }
 
         _updateMultipleModel(newValue, removeValue) {

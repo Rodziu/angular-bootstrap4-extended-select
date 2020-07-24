@@ -220,7 +220,7 @@ angular.module('extendedSelect', ['angularBS.helpers', 'angularBS.dropdown']);
                 if ($injector.has('$animate')) {
                     $injector.get('$animate').enabled(element, false);
                 }
-                ctrl.searchElement = element;
+                element[0].focus();
                 /**
 				 * move selection or pick an option on keydown
 				 */
@@ -336,34 +336,6 @@ angular.module('extendedSelect', ['angularBS.helpers', 'angularBS.dropdown']);
             this.$attrs.$observe('readonly', (value) => {
                 this.isReadonly = value === true || angular.isString(value);
             });
-            //
-            this.$element.on('click', () => {
-                const wasOpen = this.isOpen;
-                this.ngModelCtrl.$setTouched();
-                if (this.isDisabled || this.isReadonly) {
-                    this.isOpen = false;
-                } else {
-                    this.isOpen = this.multiple ? true : !this.isOpen;
-                }
-                if (!wasOpen && this.isOpen) {
-                    this.search = '';
-                    // reset active index
-                    this.activeIndex = -1;
-                    this.options.some((option, i) => {
-                        if (this.isSelected(option)) {
-                            this.activeIndex = i;
-                            if (!this.multiple) {
-                                return true; // break;
-                            }
-                        }
-                    });
-                    this.filterData();
-                }
-                this.$scope.$digest();
-                if (!wasOpen && this.isOpen) {
-                    this.searchElement[0].focus();
-                }
-            });
         }
 
         $doCheck() {
@@ -402,6 +374,30 @@ angular.module('extendedSelect', ['angularBS.helpers', 'angularBS.dropdown']);
             }
             this.isSmall = this.$element.hasClass('custom-select-sm');
             this.isLarge = this.$element.hasClass('custom-select-lg');
+        }
+
+        open() {
+            const wasOpen = this.isOpen;
+            this.ngModelCtrl.$setTouched();
+            if (this.isDisabled || this.isReadonly) {
+                this.isOpen = false;
+            } else {
+                this.isOpen = this.multiple ? true : !this.isOpen;
+            }
+            if (!wasOpen && this.isOpen) {
+                this.search = '';
+                // reset active index
+                this.activeIndex = -1;
+                this.options.some((option, i) => {
+                    if (this.isSelected(option)) {
+                        this.activeIndex = i;
+                        if (!this.multiple) {
+                            return true; // break;
+                        }
+                    }
+                });
+                this.filterData();
+            }
         }
 
         _updateMultipleModel(newValue, removeValue) {
@@ -639,4 +635,4 @@ angular.module('extendedSelect', ['angularBS.helpers', 'angularBS.dropdown']);
     angular.module('extendedSelect').factory('extendedSelectOptions', extendedSelectOption);
 }());
 
-angular.module('extendedSelect').run(['$templateCache', function($templateCache) {$templateCache.put('src/templates/extended-select.html','<div class="dropdown custom-select angular-extended-select" bs-dropdown="ctrl.isOpen" ng-class="{\'custom-select-sm\': ctrl.isSmall, \'custom-select-lg\': ctrl.isLarge}" ng-disabled="ctrl.isDisabled" ng-readonly="ctrl.isReadonly"><div class="d-flex flex-row-reverse align-items-center" ng-if="::!ctrl.multiple"><div class="d-flex"><div ng-show="ctrl.loading" class="flex-fill pl-1"><i class="fa fa-spinner fa-spin"></i></div><a class="text-success flex-fill pl-1" ng-click="$event.stopPropagation();ctrl.addOptionAction()" ng-if="ctrl.addOption && ctrl.search" title="{{::ctrl.addOptionLang}}"><i class="fa fa-plus"></i></a> <a class="text-danger flex-fill pl-1" ng-click="ctrl.deselect()" ng-if="ctrl.deselectable && ctrl.getModelLabel() && !ctrl.isDisabled && !ctrl.isReadonly"><i class="fa fa-times"></i></a></div><div class="d-flex flex-grow-1 align-items-center" extended-select-option><div ng-show="!ctrl.isOpen" class="text-nowrap" ng-class="{placeholder: !ctrl.ngModel}">{{ctrl.getModelLabel() || ctrl.placeholder}}</div><input ng-show="ctrl.isOpen" class="flex-grow-1" type="text" ng-model="ctrl.search" ng-change="ctrl.searchFn()" placeholder="{{ctrl.getModelLabel() || ctrl.placeholder}}" extended-select-search></div></div><div class="d-flex flex-row-reverse align-items-center" ng-if="::ctrl.multiple"><div class="d-flex"><div ng-show="ctrl.loading" class="flex-fill pl-1"><i class="fa fa-spinner fa-spin"></i></div></div><div class="d-flex flex-grow-1 flex-wrap"><div ng-show="!ctrl.ngModel.length && !ctrl.isOpen" class="text-nowrap placeholder">{{ctrl.placeholder}}</div><div class="d-flex extended-select-choice" ng-repeat="m in ctrl.ngModel" ng-if="ctrl.getModelLabel(m)"><span class="d-flex" extended-select-option>{{::ctrl.getModelLabel(m)}}</span> <button type="button" class="close pl-1" ng-click="$event.stopPropagation();ctrl.deselect(m)" ng-if="!ctrl.isDisabled && !ctrl.isReadonly"><i class="fa fa-times"></i></button></div><input ng-show="ctrl.isOpen" class="flex-grow-1" type="text" ng-model="ctrl.search" ng-change="ctrl.searchFn()" placeholder="{{ctrl.ngModel.length ? \'\': ctrl.placeholder}}" extended-select-search> <a class="text-success" ng-click="$event.stopPropagation();ctrl.addOptionAction()" ng-if="ctrl.addOption && ctrl.search" title="{{::ctrl.addOptionLang}}"><i class="fa fa-plus"></i></a></div></div><div class="dropdown-menu" ng-click="$event.stopPropagation()" ng-hide="!ctrl.typeToSearch && !ctrl.options.length" extended-select-options="ctrl.activeIndex"><a href="javascript:" class="dropdown-item d-flex align-items-center" ng-repeat="o in ctrl.optionsFiltered" ng-click="ctrl.pickOption(o)" ng-class="{active: $index == ctrl.activeIndex, selected: ctrl.isSelected(o)}" extended-select-option><extended-select-mark-result label="o.label"></extended-select-mark-result></a> <span class="dropdown-item-text" ng-show="ctrl.typeToSearch && ctrl.search.length < ctrl.typeToSearch">{{::ctrl.typeToSearchText}}</span> <a href="javascript:" class="dropdown-item text-primary" ng-show="ctrl.resolveOnSearch && ctrl.hasNextPage && (!ctrl.typeToSearch || ctrl.search.length >= ctrl.typeToSearch)" ng-click="ctrl.searchFn(ctrl.page + 1)">{{::ctrl.loadMoreResultsLang}}</a></div></div>');}]);
+angular.module('extendedSelect').run(['$templateCache', function($templateCache) {$templateCache.put('src/templates/extended-select.html','<div class="dropdown custom-select angular-extended-select" bs-dropdown="ctrl.isOpen" ng-click="ctrl.open()" ng-class="{\'custom-select-sm\': ctrl.isSmall, \'custom-select-lg\': ctrl.isLarge}" ng-disabled="ctrl.isDisabled" ng-readonly="ctrl.isReadonly"><div class="d-flex flex-row-reverse align-items-center" ng-if="::!ctrl.multiple"><div class="d-flex"><div ng-show="ctrl.loading" class="flex-fill pl-1"><i class="fa fa-spinner fa-spin"></i></div><a class="text-success flex-fill pl-1" ng-click="$event.stopPropagation();ctrl.addOptionAction()" ng-if="ctrl.addOption && ctrl.search" title="{{::ctrl.addOptionLang}}"><i class="fa fa-plus"></i></a> <a class="text-danger flex-fill pl-1" ng-click="ctrl.deselect()" ng-if="ctrl.deselectable && ctrl.getModelLabel() && !ctrl.isDisabled && !ctrl.isReadonly"><i class="fa fa-times"></i></a></div><div class="d-flex flex-grow-1 align-items-center" extended-select-option><div ng-if="!ctrl.isOpen" class="text-nowrap" ng-class="{placeholder: !ctrl.ngModel}">{{ctrl.getModelLabel() || ctrl.placeholder}}</div><input ng-if="ctrl.isOpen" class="flex-grow-1" type="text" ng-model="ctrl.search" ng-change="ctrl.searchFn()" placeholder="{{ctrl.getModelLabel() || ctrl.placeholder}}" extended-select-search></div></div><div class="d-flex flex-row-reverse align-items-center" ng-if="::ctrl.multiple"><div class="d-flex"><div ng-show="ctrl.loading" class="flex-fill pl-1"><i class="fa fa-spinner fa-spin"></i></div></div><div class="d-flex flex-grow-1 flex-wrap"><div ng-if="!ctrl.ngModel.length && !ctrl.isOpen" class="text-nowrap placeholder">{{ctrl.placeholder}}</div><div class="d-flex extended-select-choice" ng-repeat="m in ctrl.ngModel" ng-if="ctrl.getModelLabel(m)"><span class="d-flex" extended-select-option>{{::ctrl.getModelLabel(m)}}</span> <button type="button" class="close pl-1" ng-click="$event.stopPropagation();ctrl.deselect(m)" ng-if="!ctrl.isDisabled && !ctrl.isReadonly"><i class="fa fa-times"></i></button></div><input ng-if="ctrl.isOpen" class="flex-grow-1" type="text" ng-model="ctrl.search" ng-change="ctrl.searchFn()" placeholder="{{ctrl.ngModel.length ? \'\': ctrl.placeholder}}" extended-select-search> <a class="text-success" ng-click="$event.stopPropagation();ctrl.addOptionAction()" ng-if="ctrl.addOption && ctrl.search" title="{{::ctrl.addOptionLang}}"><i class="fa fa-plus"></i></a></div></div><div class="dropdown-menu" ng-click="$event.stopPropagation()" ng-hide="!ctrl.typeToSearch && !ctrl.options.length" extended-select-options="ctrl.activeIndex"><a href="javascript:" class="dropdown-item d-flex align-items-center" ng-repeat="o in ctrl.optionsFiltered" ng-click="ctrl.pickOption(o)" ng-class="{active: $index == ctrl.activeIndex, selected: ctrl.isSelected(o)}" extended-select-option><extended-select-mark-result label="o.label"></extended-select-mark-result></a> <span class="dropdown-item-text" ng-show="ctrl.typeToSearch && ctrl.search.length < ctrl.typeToSearch">{{::ctrl.typeToSearchText}}</span> <a href="javascript:" class="dropdown-item text-primary" ng-show="ctrl.resolveOnSearch && ctrl.hasNextPage && (!ctrl.typeToSearch || ctrl.search.length >= ctrl.typeToSearch)" ng-click="ctrl.searchFn(ctrl.page + 1)">{{::ctrl.loadMoreResultsLang}}</a></div></div>');}]);

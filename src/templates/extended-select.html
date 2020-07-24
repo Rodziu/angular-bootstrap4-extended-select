@@ -3,7 +3,7 @@
   ~ Copyright (c) 2016-2019 Rodziu <mateusz.rohde@gmail.com>
   ~ License: MIT
   -->
-<div class="dropdown custom-select angular-extended-select" bs-dropdown="ctrl.isOpen"
+<div class="dropdown custom-select angular-extended-select" bs-dropdown="ctrl.isOpen" ng-click="ctrl.open()"
      ng-class="{'custom-select-sm': ctrl.isSmall, 'custom-select-lg': ctrl.isLarge}"
      ng-disabled="ctrl.isDisabled" ng-readonly="ctrl.isReadonly">
     <!-- single select -->
@@ -22,10 +22,10 @@
             </a>
         </div>
         <div class="d-flex flex-grow-1 align-items-center" extended-select-option>
-            <div ng-show="!ctrl.isOpen" class="text-nowrap" ng-class="{placeholder: !ctrl.ngModel}">
+            <div ng-if="!ctrl.isOpen" class="text-nowrap" ng-class="{placeholder: !ctrl.ngModel}">
                 {{ctrl.getModelLabel() || ctrl.placeholder}}
             </div>
-            <input ng-show="ctrl.isOpen" class="flex-grow-1"
+            <input ng-if="ctrl.isOpen" class="flex-grow-1"
                    type="text" ng-model="ctrl.search" ng-change="ctrl.searchFn()"
                    placeholder="{{ctrl.getModelLabel() || ctrl.placeholder}}"
                    extended-select-search/>
@@ -39,7 +39,7 @@
             </div>
         </div>
         <div class="d-flex flex-grow-1 flex-wrap">
-            <div ng-show="!ctrl.ngModel.length && !ctrl.isOpen" class="text-nowrap placeholder">
+            <div ng-if="!ctrl.ngModel.length && !ctrl.isOpen" class="text-nowrap placeholder">
                 {{ctrl.placeholder}}
             </div>
             <div class="d-flex extended-select-choice" ng-repeat="m in ctrl.ngModel" ng-if="ctrl.getModelLabel(m)">
@@ -49,7 +49,7 @@
                     <i class="fa fa-times"></i>
                 </button>
             </div>
-            <input ng-show="ctrl.isOpen" class="flex-grow-1"
+            <input ng-if="ctrl.isOpen" class="flex-grow-1"
                    type="text" ng-model="ctrl.search" ng-change="ctrl.searchFn()"
                    placeholder="{{ctrl.ngModel.length ? '': ctrl.placeholder}}"
                    extended-select-search/>
