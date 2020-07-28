@@ -9,15 +9,25 @@
     function extendedSelectMarkResultController($element) {
         const ctrl = this;
         ctrl.$doCheck = function() {
-            if (this.extendedSelect.search !== this._search) {
-                this._search = this.extendedSelect.search;
-                let html = this.label;
-                if (angular.isString(this._search) && this._search.length) {
-                    html = this.label.replace(new RegExp('(' + this._search + ')', 'gi'), '<u>$1</u>')
-                }
-                $element.html(html);
+            if (ctrl.extendedSelect.search !== ctrl._search) {
+                _update();
             }
         };
+
+        ctrl.$onChanges = function() {
+            _update();
+        };
+
+        //////
+
+        function _update() {
+            ctrl._search = ctrl.extendedSelect.search;
+            let html = ctrl.label;
+            if (angular.isString(ctrl._search) && ctrl._search.length) {
+                html = ctrl.label.replace(new RegExp('(' + ctrl._search + ')', 'gi'), '<u>$1</u>')
+            }
+            $element.html(html);
+        }
     }
 
     angular.module('extendedSelect').component('extendedSelectMarkResult', {

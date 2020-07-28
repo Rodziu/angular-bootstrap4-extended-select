@@ -21,9 +21,10 @@
                 <i class="fa fa-times"></i>
             </a>
         </div>
-        <div class="d-flex flex-grow-1 align-items-center" extended-select-option>
-            <div ng-if="!ctrl.isOpen" class="text-nowrap" ng-class="{placeholder: !ctrl.ngModel}">
-                {{ctrl.getModelLabel() || ctrl.placeholder}}
+        <div class="d-flex flex-grow-1 align-items-center" es-transclude="beforeOption">
+            <div ng-if="!ctrl.isOpen" class="text-nowrap" ng-switch="ctrl.ngModelCtrl.$isEmpty(ctrl.ngModel)">
+                <span ng-switch-when="true" class="text-nowrap placeholder">{{ctrl.placeholder}}</span>
+                <span ng-switch-default es-transclude="optionTemplate">{{ctrl.getModelLabel()}}</span>
             </div>
             <input ng-if="ctrl.isOpen" class="flex-grow-1"
                    type="text" ng-model="ctrl.search" ng-change="ctrl.searchFn()"
@@ -43,7 +44,7 @@
                 {{ctrl.placeholder}}
             </div>
             <div class="d-flex extended-select-choice" ng-repeat="m in ctrl.ngModel" ng-if="ctrl.getModelLabel(m)">
-                <span class="d-flex" extended-select-option>{{::ctrl.getModelLabel(m)}}</span>
+                <span class="d-flex" es-transclude>{{::ctrl.getModelLabel(m)}}</span>
                 <button type="button" class="close pl-1" ng-click="$event.stopPropagation();ctrl.deselect(m)"
                         ng-if="!ctrl.isDisabled && !ctrl.isReadonly">
                     <i class="fa fa-times"></i>
@@ -66,7 +67,7 @@
            ng-repeat="o in ctrl.optionsFiltered"
            ng-click="ctrl.pickOption(o)"
            ng-class="{active: $index == ctrl.activeIndex, selected: ctrl.isSelected(o)}"
-           extended-select-option
+           es-transclude
         >
             <extended-select-mark-result label="o.label"></extended-select-mark-result>
         </a>

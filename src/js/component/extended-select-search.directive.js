@@ -28,7 +28,7 @@
                     if (!ctrl.optionsFiltered.length) {
                         if (e.which === 13) {
                             ctrl.addOptionAction();
-                            scope.$apply();
+                            ctrl.$scope.$apply();
                         }
                         return;
                     }
@@ -55,12 +55,12 @@
                         case 13: // enter
                             if (angular.isDefined(ctrl.optionsFiltered[ctrl.activeIndex])) {
                                 ctrl.pickOption(ctrl.optionsFiltered[ctrl.activeIndex]);
-                                scope.$parent.$apply();
+                                ctrl.$scope.$apply();
                                 return;
                             }
                             break;
                     }
-                    scope.$parent.$digest();
+                    ctrl.$scope.$digest();
                 });
             }
         };

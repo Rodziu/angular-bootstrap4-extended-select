@@ -47,7 +47,7 @@ angular.module('exampleApp', ['extendedSelect'])
         };
 
         ctrl.word = ctrl.word2 = ctrl.word3 = ctrl.word4 = ctrl.word5 = ctrl.word6 = ctrl.word7 =
-            ctrl.word8 = ctrl.word9 = ctrl.word10 = ctrl.word11 = ctrl.word12 = undefined;
+            ctrl.word8 = ctrl.word9 = ctrl.word10 = ctrl.word11 = ctrl.word12 = ctrl.word13 = undefined;
 
         ctrl.multiple = [];
 

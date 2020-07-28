@@ -268,6 +268,11 @@
 
     /**
      * @ngdoc component
+     * @name optionTemplate
+     */
+
+    /**
+     * @ngdoc component
      * @name extendedSelect
      *
      * @param {expression} ngModel
@@ -293,7 +298,8 @@
         },
         transclude: {
             option: '?option',
-            beforeOption: '?beforeOption'
+            beforeOption: '?beforeOption',
+            optionTemplate: '?optionTemplate'
         },
         templateUrl: 'src/templates/extended-select.html',
         controllerAs: 'ctrl',

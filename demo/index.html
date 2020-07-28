@@ -240,9 +240,12 @@
 						</div>
 					</div>
 				</div>
+			</div>
+			<h4 class="page-header" id="transclusion">Transclusion</h4>
+			<div class="row mb-3">
 				<div class="col-sm-6">
 					<div class="card">
-						<div class="card-header" id="option-template">Custom option template</div>
+						<div class="card-header" id="before-option">Before option</div>
 						<div class="card-body">
 							<extended-select ng-model="vm.word12" ng-options="o as o.word for o in vm.shortOptions"
 											 code-example-hook>
@@ -260,6 +263,30 @@
 								- <code>$isOption</code> which is true for select element and false for option
 								elements<br/>
 								- <code>$extendedSelect</code> extendedSelect component controller
+							</p>
+						</div>
+					</div>
+				</div>
+				<div class="col-sm-6">
+					<div class="card">
+						<div class="card-header" id="option-template">Option template</div>
+						<div class="card-body">
+							<extended-select ng-model="vm.word13" ng-options="o as o.word for o in vm.shortOptions"
+											 code-example-hook>
+								<option-template>
+									<span class="badge badge-primary">
+									    <extended-select-mark-result label="$option.label">
+                                        </extended-select-mark-result>
+                                    </span>
+								</option-template>
+							</extended-select>
+							<p class="form-text">
+								Use <code>option-template</code> transclude slot to change HTML of every option and
+								selected value.<br/>
+								Variables passed to transcluded element scope are the same as in
+								<code>before-option</code> transclude slot.<br/>
+								Use <code>extended-select-mark-result</code> component to mark searched text in
+								options.
 							</p>
 						</div>
 					</div>
