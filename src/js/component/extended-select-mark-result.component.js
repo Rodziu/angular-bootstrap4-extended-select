@@ -23,7 +23,7 @@
         function _update() {
             ctrl._search = ctrl.extendedSelect.search;
             let html = ctrl.label;
-            if (angular.isString(ctrl._search) && ctrl._search.length) {
+            if (ctrl.label && angular.isString(ctrl._search) && ctrl._search.length) {
                 html = ctrl.label.replace(new RegExp('(' + ctrl._search + ')', 'gi'), '<u>$1</u>')
             }
             $element.html(html);
