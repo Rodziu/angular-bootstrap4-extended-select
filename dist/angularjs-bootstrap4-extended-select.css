@@ -64,7 +64,7 @@ extended-select.custom-select-lg, extended-select.custom-select-sm {
     max-height: calc(30vh + 1rem);
     overflow-y: auto;
     overflow-x: hidden; }
-    .angular-extended-select .dropdown-menu > .dropdown-item, .angular-extended-select .dropdown-menu > .dropdown-item-text {
+    .angular-extended-select .dropdown-menu .dropdown-item, .angular-extended-select .dropdown-menu .dropdown-item-text, .angular-extended-select .dropdown-menu .dropdown-header {
       padding: 3px 10px; }
     .angular-extended-select .dropdown-menu extended-select-search {
       white-space: normal; }

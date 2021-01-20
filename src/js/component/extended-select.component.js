@@ -54,6 +54,15 @@
                     return !value || value.length === 0;
                 };
             }
+            this._transcludedOptions = [];
+            this.$transclude((clone) => {
+                angular.forEach(clone, (optionElement) => {
+                    this._transcludedOptions.push({
+                        value: optionElement.value,
+                        label: optionElement.textContent
+                    });
+                });
+            }, null, 'option');
             //
             this.$attrs.$observe('placeholder', (value) => {
                 this.placeholder = value;
@@ -67,41 +76,96 @@
         }
 
         $doCheck() {
-            const options = [];
-            let pickLater;
-            this.$transclude((clone) => {
-                angular.forEach(clone, (optionElement) => {
-                    options.push({
-                        value: optionElement.value,
-                        label: optionElement.textContent
-                    })
-                })
-            }, null, 'option');
-            if (this._ngOptions !== null) {
-                const optionObjects = this._ngOptions.valuesFn(this.$scope.$parent);
-                optionObjects.forEach((optionObject, key) => {
-                    const locals = this._ngOptions.getLocals(key, optionObject);
-                    options.push({
-                        value: this._ngOptions.valueFn(this.$scope.$parent, locals),
-                        label: this._ngOptions.displayFn(this.$scope.$parent, locals)
-                    });
-                    if (this._addOptionCalled && options[options.length - 1].label === this.search) {
-                        pickLater = options[options.length - 1];
-                        this._addOptionCalled = false;
-                    }
-                });
-            }
-            if (!angular.equals(options, this.options)) {
-                this.options = options;
-                if (pickLater) {
-                    // in multiple mode, we need to wait until new option is added to this.options
-                    // before selecting it
-                    this.pickOption(pickLater);
-                }
-                this.filterData();
-            }
             this.isSmall = this.$element.hasClass('custom-select-sm');
             this.isLarge = this.$element.hasClass('custom-select-lg');
+            if (this._ngOptions !== null) {
+                const optionObjects = this._ngOptions.valuesFn(this.$scope.$parent);
+                if (angular.isDefined(optionObjects) && !angular.equals(optionObjects, this._optionObjects)) {
+                    this._optionObjects = optionObjects;
+                    this.updateOptions(optionObjects);
+                }
+            }
+        }
+
+        updateOptions(optionObjects) {
+            const options = angular.copy(this._transcludedOptions),
+                groups = [],
+                groupsTree = [],
+                addGroup = (groupName, parentGroup) => {
+                    if (angular.isDefined(parentGroup)) {
+                        addGroup(parentGroup);
+                    }
+                    let groupItem = groups.find((item) => {
+                        return item.name === groupName;
+                    });
+
+                    if (angular.isUndefined(groupItem)) {
+                        groupItem = {
+                            name: groupName,
+                            parentGroup,
+                            children: []
+                        };
+                        groups.push(groupItem);
+                    } else if (angular.isDefined(parentGroup) && groupItem.parentGroup !== parentGroup) {
+                        groupItem.parentGroup = parentGroup;
+                    }
+
+                    return groupItem;
+                };
+            let pickLater;
+
+            optionObjects.forEach((optionObject, key) => {
+                const locals = this._ngOptions.getLocals(key, optionObject),
+                    groupName = this._ngOptions.groupByFn(this.$scope.$parent, locals),
+                    parentGroup = this._ngOptions.nestedByFn(this.$scope.$parent, locals);
+
+                options.push({
+                    value: this._ngOptions.valueFn(this.$scope.$parent, locals),
+                    label: this._ngOptions.displayFn(this.$scope.$parent, locals),
+                    group: angular.isDefined(groupName) ? addGroup(groupName, parentGroup) : undefined
+                });
+
+                if (this._addOptionCalled && options[options.length - 1].label === this.search) {
+                    pickLater = options[options.length - 1];
+                    this._addOptionCalled = false;
+                }
+            });
+
+            if (groups.length) {
+                groups.forEach((item) => {
+                    let parent, parentChildren;
+                    if (angular.isUndefined(item.parentGroup)) {
+                        parentChildren = groupsTree;
+                    } else {
+                        parent = groups.find((subItem) => {
+                            return subItem.name === item.parentGroup;
+                        });
+                        parentChildren = parent.children;
+                    }
+                    item.parent = parent;
+                    parentChildren.push(item);
+                });
+                const order = [],
+                    walkTree = (branch, level = 0) => {
+                        branch.forEach((item) => {
+                            order.push(item.name);
+                            item.level = level;
+                            walkTree(item.children, level + 1);
+                        });
+                    }
+                walkTree(groupsTree);
+                options.sort((a, b) => {
+                    return order.indexOf(a.group.name) - order.indexOf(b.group.name);
+                });
+            }
+
+            this.options = options;
+            if (pickLater) {
+                // in multiple mode, we need to wait until new option is added to this.options
+                // before selecting it
+                this.pickOption(pickLater);
+            }
+            this.filterData();
         }
 
         open() {

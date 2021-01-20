@@ -97,6 +97,38 @@
 					<pre>{{vm.multiple|json}}</pre>
 				</div>
 			</div>
+			<h4 class="page-header" id="grouping">Group by</h4>
+			<div class="row mb-3">
+				<div class="col-sm-6">
+					<div class="card">
+						<div class="card-header" id="group-by">Group by support</div>
+						<div class="card-body">
+							<extended-select ng-model="vm.word10"
+											 ng-options="o as o.word group by o.word.substring(0, 1) for o in vm.options"
+											 code-example-hook
+							></extended-select>
+						</div>
+					</div>
+				</div>
+				<div class="col-sm-6">
+					<div class="card">
+						<div class="card-header" id="nested-by">Group by nested by syntax</div>
+						<div class="card-body">
+							<extended-select ng-model="vm.word11"
+											 ng-options="o as o.option group by o.category nested by o.parentCategory for o in vm.nested"
+											 code-example-hook
+							></extended-select>
+						</div>
+						<div class="card-footer">
+							Extended select extends angularJS's ng-options syntax by adding 'nested by' after
+							'group-by to allow one to created nested option groups.<br/>
+                            E.g. <code><strong>group by</strong> group <strong>nested by</strong> parentGroup</code>
+                            indicates that options should be grouped by <strong>group</strong> which is a child of
+                            <strong>parentGroup</strong>.
+						</div>
+					</div>
+				</div>
+			</div>
 			<h4 class="page-header" id="options">Options</h4>
 			<div class="row mb-3">
 				<div class="col-sm-6">
@@ -216,15 +248,11 @@
 				</div>
 				<div class="col-sm-6">
 					<div class="card">
-						<div class="card-header" id="form-inline">Inline form support</div>
-						<div class="card-body form-inline">
-							<div class="form-group">
-								<label>Select an option</label>
-								<extended-select ng-model="vm.word10"
-												 ng-options="o as o.word for o in vm.shortOptions"
-												 class="ml-2">
-								</extended-select>
-							</div>
+						<div class="card-header" id="custom-placeholder">Custom placeholder</div>
+						<div class="card-body">
+							<extended-select ng-model="vm.word12" ng-options="o as o.word for o in vm.shortOptions"
+											 placeholder="Custom placeholder text"
+											 code-example-hook></extended-select>
 						</div>
 					</div>
 				</div>
@@ -232,11 +260,15 @@
 			<div class="row mb-3">
 				<div class="col-sm-6">
 					<div class="card">
-						<div class="card-header" id="custom-placeholder">Custom placeholder</div>
-						<div class="card-body">
-							<extended-select ng-model="vm.word11" ng-options="o as o.word for o in vm.shortOptions"
-											 placeholder="Custom placeholder text"
-											 code-example-hook></extended-select>
+						<div class="card-header" id="form-inline">Inline form support</div>
+						<div class="card-body form-inline">
+							<div class="form-group">
+								<label>Select an option</label>
+								<extended-select ng-model="vm.word13"
+												 ng-options="o as o.word for o in vm.shortOptions"
+												 class="ml-2">
+								</extended-select>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -247,7 +279,7 @@
 					<div class="card">
 						<div class="card-header" id="before-option">Before option</div>
 						<div class="card-body">
-							<extended-select ng-model="vm.word12" ng-options="o as o.word for o in vm.shortOptions"
+							<extended-select ng-model="vm.word14" ng-options="o as o.word for o in vm.shortOptions"
 											 code-example-hook>
 								<before-option>
 									<i class="fa fa-fw">
@@ -271,7 +303,7 @@
 					<div class="card">
 						<div class="card-header" id="option-template">Option template</div>
 						<div class="card-body">
-							<extended-select ng-model="vm.word13" ng-options="o as o.word for o in vm.shortOptions"
+							<extended-select ng-model="vm.word15" ng-options="o as o.word for o in vm.shortOptions"
 											 code-example-hook>
 								<option-template>
 									<span class="badge badge-primary">

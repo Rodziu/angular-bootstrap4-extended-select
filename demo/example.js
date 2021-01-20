@@ -10,9 +10,61 @@ angular.module('exampleApp', ['extendedSelect'])
         ctrl.options = [];
         ctrl.shortOptions = [];
         $http.get('mock_data.json').then(function(response) {
-            ctrl.options = response.data;
+            ctrl.options = response.data.sort((a, b) => {
+                return a.word.localeCompare(b.word);
+            });
             ctrl.shortOptions = response.data.slice(0, 100);
         });
+
+        ctrl.nested = [
+            {
+                option: 'g',
+                category: 'test',
+                parentCategory: 'test2'
+            },
+            {
+                option: 'i',
+                category: 'test6',
+                parentCategory: 'test3'
+            },
+            {
+                option: 'a',
+                category: 'test3'
+            },
+            {
+                option: 'b',
+                category: 'test3'
+            },
+            {
+                option: 'd',
+                category: 'test2',
+                parentCategory: 'test3'
+            },
+            {
+                option: 'f',
+                category: 'test2',
+                parentCategory: 'test3'
+            },
+            {
+                option: 'f',
+                category: 'test6',
+                parentCategory: 'test3'
+            },
+            {
+                option: 'e',
+                category: 'test2',
+                parentCategory: 'test3'
+            },
+            {
+                option: 'c',
+                category: 'test3'
+            },
+            {
+                option: 'h',
+                category: 'test4',
+                parentCategory: 'test5'
+            },
+        ]
 
         ctrl.resolvedOptions = [];
         ctrl.resolveOnSearch = function(search, page) {
@@ -46,8 +98,9 @@ angular.module('exampleApp', ['extendedSelect'])
             });
         };
 
-        ctrl.word = ctrl.word2 = ctrl.word3 = ctrl.word4 = ctrl.word5 = ctrl.word6 = ctrl.word7 =
-            ctrl.word8 = ctrl.word9 = ctrl.word10 = ctrl.word11 = ctrl.word12 = ctrl.word13 = undefined;
+        ctrl.word = ctrl.word2 = ctrl.word3 = ctrl.word4 = ctrl.word5 = ctrl.word6 = ctrl.word7 = ctrl.word8 =
+            ctrl.word9 = ctrl.word10 = ctrl.word11 = ctrl.word12 = ctrl.word13 = ctrl.word14 =
+                ctrl.word15 = undefined;
 
         ctrl.multiple = [];
 

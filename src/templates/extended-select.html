@@ -63,14 +63,19 @@
     <!-- options -->
     <div class="dropdown-menu" ng-click="$event.stopPropagation()"
          ng-hide="!ctrl.typeToSearch && !ctrl.options.length" extended-select-options="ctrl.activeIndex">
-        <a href="javascript:" class="dropdown-item d-flex align-items-center"
-           ng-repeat="o in ctrl.optionsFiltered"
-           ng-click="ctrl.pickOption(o)"
-           ng-class="{active: $index == ctrl.activeIndex, selected: ctrl.isSelected(o)}"
-           es-transclude
-        >
-            <extended-select-mark-result label="o.label"></extended-select-mark-result>
-        </a>
+        <div ng-repeat="o in ctrl.optionsFiltered">
+            <extended-select-option-group group="o.group" prev-group="ctrl.optionsFiltered[$index - 1].group"
+                                          ng-if="o.group && ($first || ctrl.optionsFiltered[$index - 1].group !== o.group)">
+            </extended-select-option-group>
+            <a href="javascript:" class="dropdown-item d-flex align-items-center"
+               ng-style="::o.group ? {'padding-left': 10 + ((o.group.level + 1) * 10) + 'px'} : {}"
+               ng-click="ctrl.pickOption(o)"
+               ng-class="{active: $index == ctrl.activeIndex, selected: ctrl.isSelected(o)}"
+               es-transclude
+            >
+                <extended-select-mark-result label="o.label"></extended-select-mark-result>
+            </a>
+        </div>
         <span class="dropdown-item-text" ng-show="ctrl.typeToSearch && ctrl.search.length < ctrl.typeToSearch">
             {{::ctrl.typeToSearchText}}
         </span>

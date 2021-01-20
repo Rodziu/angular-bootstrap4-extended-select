@@ -172,6 +172,61 @@ angular.module('extendedSelect', ['angularBS.helpers', 'angularBS.dropdown']);
 
 /*
  * AngularJS extended select component.
+ * Copyright (c) 2016-2021 Rodziu <mateusz.rohde@gmail.com>
+ * License: MIT
+ */
+
+(function() {
+    'use strict';
+
+    /**
+     * @ngInject
+     */
+    class ExtendedSelectOptionGroupController {
+        $onChanges() {
+            this.groups = [this.group];
+            let group = this.group;
+            while (angular.isDefined(group.parent)) {
+                group = group.parent;
+                if (
+                    angular.isDefined(this.prevGroup)
+                ) {
+                    let commonAncestor = this.prevGroup;
+                    if (commonAncestor.level > group.level) {
+                        commonAncestor = this.getUntilLevel(commonAncestor, group.level);
+                    }
+                    if (commonAncestor.name === group.name) {
+                        break;
+                    }
+                }
+                this.groups.unshift(group);
+            }
+        }
+
+        getUntilLevel(group, level) {
+            while (group.level > level) {
+                group = group.parent;
+            }
+            return group;
+        }
+    }
+
+    angular
+        .module('extendedSelect')
+        .component('extendedSelectOptionGroup', {
+            controller: ExtendedSelectOptionGroupController,
+            controllerAs: 'vm',
+            bindings: {
+                group: '<',
+                prevGroup: '<'
+            },
+            template: '<h6 class="dropdown-header" ng-repeat="group in vm.groups" '
+                + 'ng-style="::{\'padding-left\': 10 + (group.level * 10) + \'px\'}">{{::group.name}}</h6>'
+        });
+}());
+
+/*
+ * AngularJS extended select component.
  * Copyright (c) 2016-2019 Rodziu <mateusz.rohde@gmail.com>
  * License: MIT
  */
@@ -343,6 +398,15 @@ angular.module('extendedSelect', ['angularBS.helpers', 'angularBS.dropdown']);
                     return !value || value.length === 0;
                 };
             }
+            this._transcludedOptions = [];
+            this.$transclude((clone) => {
+                angular.forEach(clone, (optionElement) => {
+                    this._transcludedOptions.push({
+                        value: optionElement.value,
+                        label: optionElement.textContent
+                    });
+                });
+            }, null, 'option');
             //
             this.$attrs.$observe('placeholder', (value) => {
                 this.placeholder = value;
@@ -356,41 +420,96 @@ angular.module('extendedSelect', ['angularBS.helpers', 'angularBS.dropdown']);
         }
 
         $doCheck() {
-            const options = [];
-            let pickLater;
-            this.$transclude((clone) => {
-                angular.forEach(clone, (optionElement) => {
-                    options.push({
-                        value: optionElement.value,
-                        label: optionElement.textContent
-                    })
-                })
-            }, null, 'option');
-            if (this._ngOptions !== null) {
-                const optionObjects = this._ngOptions.valuesFn(this.$scope.$parent);
-                optionObjects.forEach((optionObject, key) => {
-                    const locals = this._ngOptions.getLocals(key, optionObject);
-                    options.push({
-                        value: this._ngOptions.valueFn(this.$scope.$parent, locals),
-                        label: this._ngOptions.displayFn(this.$scope.$parent, locals)
-                    });
-                    if (this._addOptionCalled && options[options.length - 1].label === this.search) {
-                        pickLater = options[options.length - 1];
-                        this._addOptionCalled = false;
-                    }
-                });
-            }
-            if (!angular.equals(options, this.options)) {
-                this.options = options;
-                if (pickLater) {
-                    // in multiple mode, we need to wait until new option is added to this.options
-                    // before selecting it
-                    this.pickOption(pickLater);
-                }
-                this.filterData();
-            }
             this.isSmall = this.$element.hasClass('custom-select-sm');
             this.isLarge = this.$element.hasClass('custom-select-lg');
+            if (this._ngOptions !== null) {
+                const optionObjects = this._ngOptions.valuesFn(this.$scope.$parent);
+                if (angular.isDefined(optionObjects) && !angular.equals(optionObjects, this._optionObjects)) {
+                    this._optionObjects = optionObjects;
+                    this.updateOptions(optionObjects);
+                }
+            }
+        }
+
+        updateOptions(optionObjects) {
+            const options = angular.copy(this._transcludedOptions),
+                groups = [],
+                groupsTree = [],
+                addGroup = (groupName, parentGroup) => {
+                    if (angular.isDefined(parentGroup)) {
+                        addGroup(parentGroup);
+                    }
+                    let groupItem = groups.find((item) => {
+                        return item.name === groupName;
+                    });
+
+                    if (angular.isUndefined(groupItem)) {
+                        groupItem = {
+                            name: groupName,
+                            parentGroup,
+                            children: []
+                        };
+                        groups.push(groupItem);
+                    } else if (angular.isDefined(parentGroup) && groupItem.parentGroup !== parentGroup) {
+                        groupItem.parentGroup = parentGroup;
+                    }
+
+                    return groupItem;
+                };
+            let pickLater;
+
+            optionObjects.forEach((optionObject, key) => {
+                const locals = this._ngOptions.getLocals(key, optionObject),
+                    groupName = this._ngOptions.groupByFn(this.$scope.$parent, locals),
+                    parentGroup = this._ngOptions.nestedByFn(this.$scope.$parent, locals);
+
+                options.push({
+                    value: this._ngOptions.valueFn(this.$scope.$parent, locals),
+                    label: this._ngOptions.displayFn(this.$scope.$parent, locals),
+                    group: angular.isDefined(groupName) ? addGroup(groupName, parentGroup) : undefined
+                });
+
+                if (this._addOptionCalled && options[options.length - 1].label === this.search) {
+                    pickLater = options[options.length - 1];
+                    this._addOptionCalled = false;
+                }
+            });
+
+            if (groups.length) {
+                groups.forEach((item) => {
+                    let parent, parentChildren;
+                    if (angular.isUndefined(item.parentGroup)) {
+                        parentChildren = groupsTree;
+                    } else {
+                        parent = groups.find((subItem) => {
+                            return subItem.name === item.parentGroup;
+                        });
+                        parentChildren = parent.children;
+                    }
+                    item.parent = parent;
+                    parentChildren.push(item);
+                });
+                const order = [],
+                    walkTree = (branch, level = 0) => {
+                        branch.forEach((item) => {
+                            order.push(item.name);
+                            item.level = level;
+                            walkTree(item.children, level + 1);
+                        });
+                    }
+                walkTree(groupsTree);
+                options.sort((a, b) => {
+                    return order.indexOf(a.group.name) - order.indexOf(b.group.name);
+                });
+            }
+
+            this.options = options;
+            if (pickLater) {
+                // in multiple mode, we need to wait until new option is added to this.options
+                // before selecting it
+                this.pickOption(pickLater);
+            }
+            this.filterData();
         }
 
         open() {
@@ -610,17 +729,18 @@ angular.module('extendedSelect', ['angularBS.helpers', 'angularBS.dropdown']);
      * 1: value expression (valueFn)
      * 2: label expression (displayFn)
      * 3: group by expression (groupByFn)
-     * 4: disable when expression (disableWhenFn)
-     * 5: array item variable name
-     * 6: object item key variable name
-     * 7: object item value variable name
-     * 8: collection expression
-     * 9: track by expression
+     * 4: nested by expression (nestedByFn)
+     * 5: disable when expression (disableWhenFn)
+     * 6: array item variable name
+     * 7: object item key variable name
+     * 8: object item value variable name
+     * 9: collection expression
+     * 10: track by expression
      * @type {RegExp}
      */
     // eslint-disable-next-line max-len
     extendedSelectOption.$inject = ["$parse"];
-    const NG_OPTIONS_REGEXP = /^\s*([\s\S]+?)(?:\s+as\s+([\s\S]+?))?(?:\s+group\s+by\s+([\s\S]+?))?(?:\s+disable\s+when\s+([\s\S]+?))?\s+for\s+(?:([$\w][$\w]*)|(?:\(\s*([$\w][$\w]*)\s*,\s*([$\w][$\w]*)\s*\)))\s+in\s+([\s\S]+?)(?:\s+track\s+by\s+([\s\S]+?))?$/;
+    const NG_OPTIONS_REGEXP = /^\s*([\s\S]+?)(?:\s+as\s+([\s\S]+?))?(?:\s+group\s+by\s+([\s\S]+?)(?:\s+nested\s+by\s+([\s\S]+?))?)?(?:\s+disable\s+when\s+([\s\S]+?))?\s+for\s+(?:([$\w][$\w]*)|(?:\(\s*([$\w][$\w]*)\s*,\s*([$\w][$\w]*)\s*\)))\s+in\s+([\s\S]+?)(?:\s+track\s+by\s+([\s\S]+?))?$/;
 
     /**
      * @ngdoc factory
@@ -637,12 +757,14 @@ angular.module('extendedSelect', ['angularBS.helpers', 'angularBS.dropdown']);
             if (match === null) {
                 return null;
             }
-            const valueName = match[5] || match[7],
-                keyName = match[6];
+            const valueName = match[6] || match[8],
+                keyName = match[7];
             return {
                 valueFn: $parse(match[2] ? match[1] : valueName),
                 displayFn: $parse(match[2] || match[1]),
-                valuesFn: $parse(match[8]),
+                groupByFn: $parse(match[3] || ''),
+                nestedByFn: $parse(match[4] || ''),
+                valuesFn: $parse(match[9]),
                 getLocals: function(k, v) {
                     const locals = {};
                     locals[valueName] = v;
@@ -658,4 +780,4 @@ angular.module('extendedSelect', ['angularBS.helpers', 'angularBS.dropdown']);
     angular.module('extendedSelect').factory('extendedSelectOptions', extendedSelectOption);
 }());
 
-angular.module('extendedSelect').run(['$templateCache', function($templateCache) {$templateCache.put('src/templates/extended-select.html','<div class="dropdown custom-select angular-extended-select" bs-dropdown="ctrl.isOpen" ng-click="ctrl.open()" ng-class="{\'custom-select-sm\': ctrl.isSmall, \'custom-select-lg\': ctrl.isLarge}" ng-disabled="ctrl.isDisabled" ng-readonly="ctrl.isReadonly"><div class="d-flex flex-row-reverse align-items-center" ng-if="::!ctrl.multiple"><div class="d-flex"><div ng-show="ctrl.loading" class="flex-fill pl-1"><i class="fa fa-spinner fa-spin"></i></div><a class="text-success flex-fill pl-1" ng-click="$event.stopPropagation();ctrl.addOptionAction()" ng-if="ctrl.addOption && ctrl.search" title="{{::ctrl.addOptionLang}}"><i class="fa fa-plus"></i></a> <a class="text-danger flex-fill pl-1" ng-click="ctrl.deselect()" ng-if="ctrl.deselectable && ctrl.getModelLabel() && !ctrl.isDisabled && !ctrl.isReadonly"><i class="fa fa-times"></i></a></div><div class="d-flex flex-grow-1 align-items-center" es-transclude="beforeOption"><div ng-show="!ctrl.isOpen" class="text-nowrap" ng-switch="ctrl.ngModelCtrl.$isEmpty(ctrl.ngModel)"><span ng-switch-when="true" class="text-nowrap placeholder">{{ctrl.placeholder}}</span> <span ng-switch-default es-transclude="optionTemplate">{{ctrl.getModelLabel()}}</span></div><input ng-if="ctrl.isOpen" class="flex-grow-1" type="text" ng-model="ctrl.search" ng-change="ctrl.searchFn()" placeholder="{{ctrl.getModelLabel() || ctrl.placeholder}}" extended-select-search></div></div><div class="d-flex flex-row-reverse align-items-center" ng-if="::ctrl.multiple"><div class="d-flex"><div ng-show="ctrl.loading" class="flex-fill pl-1"><i class="fa fa-spinner fa-spin"></i></div></div><div class="d-flex flex-grow-1 flex-wrap"><div ng-if="!ctrl.ngModel.length && !ctrl.isOpen" class="text-nowrap placeholder">{{ctrl.placeholder}}</div><div class="d-flex extended-select-choice" ng-repeat="m in ctrl.ngModel" ng-if="ctrl.getModelLabel(m)"><span class="d-flex" es-transclude>{{::ctrl.getModelLabel(m)}}</span> <button type="button" class="close pl-1" ng-click="$event.stopPropagation();ctrl.deselect(m)" ng-if="!ctrl.isDisabled && !ctrl.isReadonly"><i class="fa fa-times"></i></button></div><input ng-if="ctrl.isOpen" class="flex-grow-1" type="text" ng-model="ctrl.search" ng-change="ctrl.searchFn()" placeholder="{{ctrl.ngModel.length ? \'\': ctrl.placeholder}}" extended-select-search> <a class="text-success" ng-click="$event.stopPropagation();ctrl.addOptionAction()" ng-if="ctrl.addOption && ctrl.search" title="{{::ctrl.addOptionLang}}"><i class="fa fa-plus"></i></a></div></div><div class="dropdown-menu" ng-click="$event.stopPropagation()" ng-hide="!ctrl.typeToSearch && !ctrl.options.length" extended-select-options="ctrl.activeIndex"><a href="javascript:" class="dropdown-item d-flex align-items-center" ng-repeat="o in ctrl.optionsFiltered" ng-click="ctrl.pickOption(o)" ng-class="{active: $index == ctrl.activeIndex, selected: ctrl.isSelected(o)}" es-transclude><extended-select-mark-result label="o.label"></extended-select-mark-result></a> <span class="dropdown-item-text" ng-show="ctrl.typeToSearch && ctrl.search.length < ctrl.typeToSearch">{{::ctrl.typeToSearchText}}</span> <a href="javascript:" class="dropdown-item text-primary" ng-show="ctrl.resolveOnSearch && ctrl.hasNextPage && (!ctrl.typeToSearch || ctrl.search.length >= ctrl.typeToSearch)" ng-click="ctrl.searchFn(ctrl.page + 1)">{{::ctrl.loadMoreResultsLang}}</a></div></div>');}]);
+angular.module('extendedSelect').run(['$templateCache', function($templateCache) {$templateCache.put('src/templates/extended-select.html','<div class="dropdown custom-select angular-extended-select" bs-dropdown="ctrl.isOpen" ng-click="ctrl.open()" ng-class="{\'custom-select-sm\': ctrl.isSmall, \'custom-select-lg\': ctrl.isLarge}" ng-disabled="ctrl.isDisabled" ng-readonly="ctrl.isReadonly"><div class="d-flex flex-row-reverse align-items-center" ng-if="::!ctrl.multiple"><div class="d-flex"><div ng-show="ctrl.loading" class="flex-fill pl-1"><i class="fa fa-spinner fa-spin"></i></div><a class="text-success flex-fill pl-1" ng-click="$event.stopPropagation();ctrl.addOptionAction()" ng-if="ctrl.addOption && ctrl.search" title="{{::ctrl.addOptionLang}}"><i class="fa fa-plus"></i></a> <a class="text-danger flex-fill pl-1" ng-click="ctrl.deselect()" ng-if="ctrl.deselectable && ctrl.getModelLabel() && !ctrl.isDisabled && !ctrl.isReadonly"><i class="fa fa-times"></i></a></div><div class="d-flex flex-grow-1 align-items-center" es-transclude="beforeOption"><div ng-show="!ctrl.isOpen" class="text-nowrap" ng-switch="ctrl.ngModelCtrl.$isEmpty(ctrl.ngModel)"><span ng-switch-when="true" class="text-nowrap placeholder">{{ctrl.placeholder}}</span> <span ng-switch-default es-transclude="optionTemplate">{{ctrl.getModelLabel()}}</span></div><input ng-if="ctrl.isOpen" class="flex-grow-1" type="text" ng-model="ctrl.search" ng-change="ctrl.searchFn()" placeholder="{{ctrl.getModelLabel() || ctrl.placeholder}}" extended-select-search></div></div><div class="d-flex flex-row-reverse align-items-center" ng-if="::ctrl.multiple"><div class="d-flex"><div ng-show="ctrl.loading" class="flex-fill pl-1"><i class="fa fa-spinner fa-spin"></i></div></div><div class="d-flex flex-grow-1 flex-wrap"><div ng-if="!ctrl.ngModel.length && !ctrl.isOpen" class="text-nowrap placeholder">{{ctrl.placeholder}}</div><div class="d-flex extended-select-choice" ng-repeat="m in ctrl.ngModel" ng-if="ctrl.getModelLabel(m)"><span class="d-flex" es-transclude>{{::ctrl.getModelLabel(m)}}</span> <button type="button" class="close pl-1" ng-click="$event.stopPropagation();ctrl.deselect(m)" ng-if="!ctrl.isDisabled && !ctrl.isReadonly"><i class="fa fa-times"></i></button></div><input ng-if="ctrl.isOpen" class="flex-grow-1" type="text" ng-model="ctrl.search" ng-change="ctrl.searchFn()" placeholder="{{ctrl.ngModel.length ? \'\': ctrl.placeholder}}" extended-select-search> <a class="text-success" ng-click="$event.stopPropagation();ctrl.addOptionAction()" ng-if="ctrl.addOption && ctrl.search" title="{{::ctrl.addOptionLang}}"><i class="fa fa-plus"></i></a></div></div><div class="dropdown-menu" ng-click="$event.stopPropagation()" ng-hide="!ctrl.typeToSearch && !ctrl.options.length" extended-select-options="ctrl.activeIndex"><div ng-repeat="o in ctrl.optionsFiltered"><extended-select-option-group group="o.group" prev-group="ctrl.optionsFiltered[$index - 1].group" ng-if="o.group && ($first || ctrl.optionsFiltered[$index - 1].group !== o.group)"></extended-select-option-group><a href="javascript:" class="dropdown-item d-flex align-items-center" ng-style="::o.group ? {\'padding-left\': 10 + ((o.group.level + 1) * 10) + \'px\'} : {}" ng-click="ctrl.pickOption(o)" ng-class="{active: $index == ctrl.activeIndex, selected: ctrl.isSelected(o)}" es-transclude><extended-select-mark-result label="o.label"></extended-select-mark-result></a></div><span class="dropdown-item-text" ng-show="ctrl.typeToSearch && ctrl.search.length < ctrl.typeToSearch">{{::ctrl.typeToSearchText}}</span> <a href="javascript:" class="dropdown-item text-primary" ng-show="ctrl.resolveOnSearch && ctrl.hasNextPage && (!ctrl.typeToSearch || ctrl.search.length >= ctrl.typeToSearch)" ng-click="ctrl.searchFn(ctrl.page + 1)">{{::ctrl.loadMoreResultsLang}}</a></div></div>');}]);
