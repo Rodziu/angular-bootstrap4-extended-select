@@ -425,7 +425,7 @@ angular.module('extendedSelect', ['angularBS.helpers', 'angularBS.dropdown']);
             if (this._ngOptions !== null) {
                 const optionObjects = this._ngOptions.valuesFn(this.$scope.$parent);
                 if (angular.isDefined(optionObjects) && !angular.equals(optionObjects, this._optionObjects)) {
-                    this._optionObjects = optionObjects;
+                    this._optionObjects = angular.copy(optionObjects);
                     this.updateOptions(optionObjects);
                 }
             }
@@ -546,6 +546,7 @@ angular.module('extendedSelect', ['angularBS.helpers', 'angularBS.dropdown']);
                         || angular.equals(option.value, newValue)
                     )
                     && !angular.equals(option.value, removeValue)
+                    && !sorted.includes(option.value)
                 ) {
                     sorted.push(option.value);
                 }
