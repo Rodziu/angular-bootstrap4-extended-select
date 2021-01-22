@@ -224,8 +224,20 @@
             const search = this.search.toLowerCase();
             this.options.forEach((option) => {
                 if (
-                    !!~option.label.toLowerCase().indexOf(search)
-                    || (this.searchByValue && !!~option.value.toLowerCase().indexOf(search))
+                    option.label.toLowerCase().includes(search)
+                    || (
+                        this.searchByValue
+                        && (
+                            (
+                                angular.isString(option.value)
+                                && option.value.toLowerCase().includes(search)
+                            )
+                            || (
+                                angular.isObject(option.value)
+                                && angular.toJson(option.value).toLowerCase().includes(search)
+                            )
+                        )
+                    )
                 ) {
                     this.optionsFiltered.push(option);
                 }
