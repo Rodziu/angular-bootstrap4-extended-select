@@ -659,7 +659,7 @@ angular.module('extendedSelect', ['angularBS.helpers', 'angularBS.dropdown']);
             if (this.multiple) {
                 this._updateMultipleModel(undefined, value);
             } else {
-                this.ngModel = undefined;
+                this.ngModel = this.deselectValue;
             }
             this.activeIndex = -1;
             this.ngModelCtrl.$setViewValue(this.ngModel);
@@ -715,6 +715,7 @@ angular.module('extendedSelect', ['angularBS.helpers', 'angularBS.dropdown']);
             addOption: '&?',
             resolveOnSearch: '&?',
             deselectable: '<?',
+            deselectValue: '<?',
             typeToSearch: '<?',
             searchByValue: '<?'
         },

@@ -185,6 +185,10 @@
 						<div class="card-body">
 							<extended-select ng-model="vm.word5" ng-options="o as o.word for o in vm.shortOptions"
 											 deselectable code-example-hook></extended-select>
+							<p class="form-text">
+								You can provide a value that model will be set to upon deselect
+								via <code>deselect-value</code> binding.
+							</p>
 						</div>
 					</div>
 				</div>

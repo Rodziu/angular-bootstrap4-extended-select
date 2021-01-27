@@ -315,7 +315,7 @@
             if (this.multiple) {
                 this._updateMultipleModel(undefined, value);
             } else {
-                this.ngModel = undefined;
+                this.ngModel = this.deselectValue;
             }
             this.activeIndex = -1;
             this.ngModelCtrl.$setViewValue(this.ngModel);
@@ -370,6 +370,7 @@
             addOption: '&?',
             resolveOnSearch: '&?',
             deselectable: '<?',
+            deselectValue: '<?',
             typeToSearch: '<?',
             searchByValue: '<?'
         },
