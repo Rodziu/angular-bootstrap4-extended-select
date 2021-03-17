@@ -1,6 +1,6 @@
 {
   "name": "angularjs-bootstrap4-extended-select",
-  "version": "2.3.0",
+  "version": "3.0.0",
   "description": "AngularJS extended select component.",
   "main": "dist/angularjs-bootstrap4-extended-select.js",
   "scripts": {
@@ -21,8 +21,8 @@
     "font-awesome": "^4.7.0"
   },
   "devDependencies": {
-    "@types/angular-animate": "^1.5.10",
     "@rodziu/gulp-ng-annotate-patched": "^1.0.0",
+    "@types/angular-animate": "^1.5.10",
     "@typescript-eslint/eslint-plugin": "^4.14.2",
     "@typescript-eslint/parser": "^4.14.2",
     "eslint": "^7.19.0",
