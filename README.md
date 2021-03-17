@@ -1,4 +1,4 @@
-# AngularJS extended select component.
+# AngularJS extended-select component.
 
 [Live Demo](https://mateuszrohde.pl/repository/angularjs-bootstrap4-extended-select/demo/index.html)
 
@@ -20,7 +20,7 @@ yarn install
 
 - Search options, 
 	- navigate through them using arrow keys,
-	- resolve options from external source during search,
+	- resolve options from an external source during search,
 	- hide options until some characters are typed,
 	- add options on the fly,
 - deselect options,

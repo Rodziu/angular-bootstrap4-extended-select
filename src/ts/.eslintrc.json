@@ -3,18 +3,24 @@
     "browser": true,
     "es6": true
   },
+  "parser": "@typescript-eslint/parser",
+  "plugins": [
+    "@typescript-eslint"
+  ],
   "extends": [
     "angular",
-    "eslint:recommended"
+    "eslint:recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended"
   ],
   "parserOptions": {
     "ecmaVersion": 2016
   },
   "rules": {
-    "angular/di": 0, // ng-annotate takes care of that
-    "angular/service-name": 0,
+    "angular/di": 0,
     "angular/log": 0,
-    "angular/no-private-call": 0,
+    "angular/module-setter": 0,
+    "angular/service-name": 0,
     "array-bracket-newline": [
       2,
       "consistent"
@@ -58,7 +64,6 @@
     "no-trailing-spaces": 2,
     "no-unneeded-ternary": 2,
     "no-useless-computed-key": 2,
-    "no-useless-constructor": 2,
     "no-var": 2,
     "no-whitespace-before-property": 2,
     "operator-linebreak": [
@@ -102,6 +107,8 @@
       }
     ],
     "template-curly-spacing": 2,
-    "wrap-iife": 2
+    "wrap-iife": 2,
+    "no-useless-constructor": "off",
+    "@typescript-eslint/no-useless-constructor": ["error"]
   }
 }
