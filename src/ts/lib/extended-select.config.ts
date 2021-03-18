@@ -10,6 +10,7 @@ import {IDirective} from 'angular';
 
 /**
  * Prevent ng-options directive from compiling on angular-extended-select
+ * @ngInject
  */
 export function extendedSelectConfig($provide: IProvideService): void {
     const blocked = ['ngOptions', 'select'];

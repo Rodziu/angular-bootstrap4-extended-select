@@ -8,6 +8,9 @@ import IInjectorService = angular.auto.IInjectorService;
 import {IDirective} from 'angular';
 import * as angular from 'angular';
 
+/**
+ * @ngInject
+ */
 export function extendedSelectSearchDirective($injector: IInjectorService): IDirective {
     /**
      * @ngdoc directive

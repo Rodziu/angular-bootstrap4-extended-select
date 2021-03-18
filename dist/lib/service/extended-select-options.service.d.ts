@@ -7,6 +7,9 @@ export interface IParsedNgOptions {
     valuesFn: ICompiledExpression;
     getLocals: (key: unknown, value: unknown) => Record<string, unknown>;
 }
+/**
+ * @ngInject
+ */
 export declare class ExtendedSelectOptionsService {
     private $parse;
     constructor($parse: IParseService);

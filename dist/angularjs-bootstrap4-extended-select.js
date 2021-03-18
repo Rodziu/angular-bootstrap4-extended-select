@@ -100,6 +100,9 @@ __webpack_require__.r(__webpack_exports__);
  * License: MIT
  */
 
+/**
+ * @ngInject
+ */
 class ExtendedSelectMarkResultComponentController {
     constructor($element) {
         this.$element = $element;
@@ -121,6 +124,7 @@ class ExtendedSelectMarkResultComponentController {
         this.$element.html(html);
     }
 }
+ExtendedSelectMarkResultComponentController.$inject = ["$element"];
 /**
  * @ngdoc component
  * @name extendedSelectMarkResult
@@ -277,6 +281,9 @@ __webpack_require__.r(__webpack_exports__);
  * License: MIT
  */
 
+/**
+ * @ngInject
+ */
 function extendedSelectSearchDirective($injector) {
     /**
      * @ngdoc directive
@@ -336,6 +343,7 @@ function extendedSelectSearchDirective($injector) {
         }
     };
 }
+extendedSelectSearchDirective.$inject = ["$injector"];
 
 
 
@@ -724,6 +732,7 @@ __webpack_require__.r(__webpack_exports__);
 
 /**
  * Prevent ng-options directive from compiling on angular-extended-select
+ * @ngInject
  */
 function extendedSelectConfig($provide) {
     const blocked = ['ngOptions', 'select'];
@@ -743,6 +752,7 @@ function extendedSelectConfig($provide) {
             }]);
     });
 }
+extendedSelectConfig.$inject = ["$provide"];
 
 
 
@@ -865,6 +875,9 @@ __webpack_require__.r(__webpack_exports__);
  */
 // eslint-disable-next-line max-len
 const NG_OPTIONS_REGEXP = /^\s*([\s\S]+?)(?:\s+as\s+([\s\S]+?))?(?:\s+group\s+by\s+([\s\S]+?)(?:\s+nested\s+by\s+([\s\S]+?))?)?(?:\s+disable\s+when\s+([\s\S]+?))?\s+for\s+(?:([$\w][$\w]*)|(?:\(\s*([$\w][$\w]*)\s*,\s*([$\w][$\w]*)\s*\)))\s+in\s+([\s\S]+?)(?:\s+track\s+by\s+([\s\S]+?))?$/;
+/**
+ * @ngInject
+ */
 class ExtendedSelectOptionsService {
     constructor($parse) {
         this.$parse = $parse;
@@ -892,6 +905,7 @@ class ExtendedSelectOptionsService {
         };
     }
 }
+ExtendedSelectOptionsService.$inject = ["$parse"];
 
 
 

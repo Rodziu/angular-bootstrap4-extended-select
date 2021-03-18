@@ -8,6 +8,9 @@ import {ExtendedSelectComponentController} from './extended-select.component';
 import * as angular from 'angular';
 import {IComponentOptions} from 'angular';
 
+/**
+ * @ngInject
+ */
 class ExtendedSelectMarkResultComponentController {
     extendedSelect: ExtendedSelectComponentController;
     label: string;
