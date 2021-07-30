@@ -1,0 +1,45 @@
+/*!
+ * Angular Extended Select component.
+ * Copyright (c) 2016-2021 Rodziu <mateusz.rohde@gmail.com>
+ * License: MIT
+ */
+@import "../../../node_modules/bootstrap/scss/functions";
+@import "../../../node_modules/bootstrap/scss/variables";
+@import "../../../node_modules/bootstrap/scss/bootstrap";
+@import "../../../dist/angular-bootstrap4-extended-select";
+
+.loader {
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+}
+
+.page-header {
+  padding-top: 30px;
+  padding-bottom: 9px;
+  margin: 0 0 20px;
+  border-bottom: 1px solid #eee;
+  font-size: 1.5rem;
+}
+
+nav {
+  overflow: auto;
+  max-height: 100vh
+}
+
+pre {
+  white-space: pre-wrap;
+  margin-bottom: 0;
+  > label {
+    font-size: 1rem;
+    font-family: $font-family-base;
+  }
+  > div {
+    color: $code-color;
+  }
+  > .card {
+    display: block;
+  }
+}
+

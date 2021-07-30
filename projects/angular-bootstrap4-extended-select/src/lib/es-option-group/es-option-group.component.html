@@ -1,0 +1,11 @@
+<!--
+  ~ Angular Extended Select component.
+  ~ Copyright (c) 2016-2021 Rodziu <mateusz.rohde@gmail.com>
+  ~ License: MIT
+  -->
+
+<h6 class="dropdown-header" *ngIf="esOptions.esOptionsGroup"
+    [ngStyle]="{'padding-left': 10 + (esOptions.level * 10) + 'px'}">
+    {{esOptions.esOptionsGroup}}
+</h6>
+<es-option *ngFor="let o of esOptions.options | async" [option]="o" [esOptionGroup]="this" #esOption></es-option>

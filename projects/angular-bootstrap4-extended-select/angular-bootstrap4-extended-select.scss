@@ -1,0 +1,117 @@
+/*!
+ * Angular Extended Select component.
+ * Copyright (c) 2016-2021 Rodziu <mateusz.rohde@gmail.com>
+ * License: MIT
+ */
+@import "~node_modules/bootstrap/scss/functions";
+@import "~node_modules/bootstrap/scss/mixins/border-radius";
+@import "~node_modules/bootstrap/scss/variables";
+
+$spacer-1: map_get($spacers, 1);
+
+extended-select {
+  &.custom-select-lg, &.custom-select-sm {
+    padding: 0;
+  }
+}
+.angular-extended-select {
+  cursor: pointer;
+  height: auto;
+  text-align: left;
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Chrome/Safari/Opera */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently
+                                  not supported by any browser */
+  &.show {
+    color: $input-focus-color;
+    background-color: $input-focus-bg;
+    border-color: $input-focus-border-color;
+    outline: 0;
+    // Avoid using mixin so we can pass custom focus shadow properly
+    @if $enable-shadows {
+      box-shadow: $input-box-shadow, $input-focus-box-shadow;
+    } @else {
+      box-shadow: $input-focus-box-shadow;
+    }
+  }
+
+  &.disabled {
+    color: $custom-select-disabled-color;
+    background-color: $custom-select-disabled-bg;
+    cursor: default;
+  }
+
+  > .d-flex { // select contents
+    .placeholder {
+      color: $input-placeholder-color;
+    }
+
+    input {
+      border: 0 none;
+      padding: 0;
+      outline: 0 none;
+      background: transparent;
+      width: 1px; // later expanded by flex-grow-1
+      &::placeholder {
+        color: $input-placeholder-color;
+        // Override Firefox's unusual default opacity; see https://github.com/twbs/bootstrap/pull/11526.
+        opacity: 1;
+      }
+    }
+
+    > .flex-grow-1 { // selected value or input
+      overflow: hidden;
+    }
+
+    > .flex-wrap { // multiple select wrap
+      margin-bottom: -$spacer-1;
+      > div, > input, > a {
+        margin: 0 $spacer-1 $spacer-1 0;
+      }
+
+      .extended-select-choice {
+        padding: 0 $spacer-1;
+        border: 1px solid #ccc;
+        @include border-radius();
+        align-items: center;
+        > button {
+          font-size: 1rem;
+        }
+      }
+    }
+  }
+
+  before-option {
+    margin-right: $spacer-1;
+  }
+
+  .dropdown-menu {
+    cursor: auto;
+    width: calc(100% + 2px);
+    margin-left: -1px;
+
+    > .es-dropdown-scroll {
+      position: relative;
+      max-height: calc(30vh + #{$dropdown-padding-y * 2});
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .dropdown-item, .dropdown-item-text, .dropdown-header {
+      padding: 3px 10px;
+    }
+    extended-select-search {
+      white-space: normal;
+    }
+
+    .selected {
+      background: transparent !important;
+      color: #ccc;
+    }
+  }
+}
+.form-inline .angular-extended-select {
+  min-width: 200px;
+}

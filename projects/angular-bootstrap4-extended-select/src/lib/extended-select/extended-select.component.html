@@ -1,0 +1,89 @@
+<!--
+  ~ Angular Extended Select component.
+  ~ Copyright (c) 2016-2021 Rodziu <mateusz.rohde@gmail.com>
+  ~ License: MIT
+  -->
+<div class="dropdown custom-select angular-extended-select"
+     *ngIf="esOptionsList"
+     [(bsDropdown)]="isOpen" (click)="open()"
+     [ngClass]="{'disabled': isDisabled, 'custom-select-sm': size === 'sm', 'custom-select-lg': size === 'lg'}">
+    <!-- single select -->
+    <div class="d-flex flex-row-reverse align-items-center" *ngIf="!multiple">
+        <div class="d-flex">
+            <div [hidden]="!loading" class="flex-fill pl-1">
+                <i class="fa fa-spinner fa-spin"></i>
+            </div>
+            <a class="text-success flex-fill pl-1" (click)="$event.stopPropagation(); addOptionAction()"
+               *ngIf="addOption && searchControl.value" [title]="config.addOptionLang">
+                <i class="fa fa-plus"></i>
+            </a>
+            <a class="text-danger flex-fill pl-1" (click)="deselect()"
+               *ngIf="deselectable && !!currentOption && !isDisabled">
+                <i class="fa fa-times"></i>
+            </a>
+        </div>
+        <div class="d-flex flex-grow-1 align-items-center">
+            <div *ngIf="esBeforeOption">
+                <ng-container *ngTemplateOutlet="esBeforeOption.template; context: {$implicit: currentOption?.item}">
+                </ng-container>
+            </div>
+            <div [hidden]="isOpen" class="text-nowrap">
+                <span *ngIf="!currentOption" class="text-nowrap placeholder">{{placeholder}}</span>
+                <span *ngIf="currentOption">
+                    <ng-container *ngTemplateOutlet="currentOption.esOptions.template; context: {$implicit: currentOption.item}">
+                    </ng-container>
+                </span>
+            </div>
+            <input *ngIf="isOpen" class="flex-grow-1"
+                   type="text" [formControl]="searchControl"
+                   [esSearch]="this"/>
+        </div>
+    </div>
+    <!-- multiple select -->
+    <div class="d-flex flex-row-reverse align-items-center" *ngIf="multiple">
+        <div class="d-flex">
+            <div [hidden]="!loading" class="flex-fill pl-1">
+                <i class="fa fa-spinner fa-spin"></i>
+            </div>
+        </div>
+        <div class="d-flex flex-grow-1 flex-wrap">
+            <div *ngIf="!currentOptions?.length && !isOpen" class="text-nowrap placeholder">
+                {{placeholder}}
+            </div>
+            <div class="d-flex extended-select-choice" *ngFor="let o of currentOptions">
+                <span class="d-flex">
+                    <ng-container *ngTemplateOutlet="o.esOptions.template; context: {$implicit: o.item}">
+                    </ng-container>
+                </span>
+                <button type="button" class="close pl-1" (click)="$event.stopPropagation(); deselect(o)"
+                        *ngIf="!isDisabled">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+            <input *ngIf="isOpen" class="flex-grow-1"
+                   type="text" [formControl]="searchControl"
+                   [esSearch]="this"/>
+            <a class="text-success" (click)="$event.stopPropagation(); addOptionAction()"
+               *ngIf="addOption && searchControl.value" title="{{config.addOptionLang}}">
+                <i class="fa fa-plus"></i>
+            </a>
+        </div>
+    </div>
+    <!-- options -->
+    <div class="dropdown-menu" (click)="$event.stopPropagation()">
+        <div class="es-dropdown-scroll" [esDropdown]="this" *ngIf="isOpen">
+            <es-option-group *ngFor="let esOptions of esOptionsList" [esOptions]="esOptions"
+                             [extendedSelect]="this"
+                             #esOptionGroup>
+            </es-option-group>
+            <span class="dropdown-item-text" [hidden]="!typeToSearch || searchControl.value?.length >= typeToSearch">
+                {{config.typeToSearchText}}
+            </span>
+            <a href="javascript:" class="dropdown-item text-primary"
+               [hidden]="!resolveOnSearch || !hasNextPage || (typeToSearch && searchControl.value?.length >= typeToSearch)"
+               (click)="resolveOptions(page + 1)">
+                {{config.loadMoreResultsLang}}
+            </a>
+        </div>
+    </div>
+</div>

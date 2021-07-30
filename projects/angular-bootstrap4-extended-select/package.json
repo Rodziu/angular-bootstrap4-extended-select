@@ -1,0 +1,19 @@
+{
+  "name": "angular-bootstrap4-extended-select",
+  "version": "4.0.0",
+  "description": "Angular extended select component",
+  "repository": "https://github.com/Rodziu/angular-bootstrap4-extended-select",
+  "author": "Mateusz Rohde <mateusz.rohde@gmail.com>",
+  "license": "MIT",
+  "homepage": "https://mateuszrohde.pl/repository/angular-bootstrap4-extended-select",
+  "peerDependencies": {
+    "@angular/common": "^12.0.5",
+    "@angular/core": "^12.0.5",
+    "@fortawesome/fontawesome-free": "^5.15.3",
+    "angular-bootstrap4": "^3.0.1",
+    "bootstrap": "^4.6.0"
+  },
+  "dependencies": {
+    "tslib": "^2.1.0"
+  }
+}

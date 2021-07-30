@@ -1,0 +1,23 @@
+<!--
+  ~ Angular Extended Select component.
+  ~ Copyright (c) 2016-2021 Rodziu <mateusz.rohde@gmail.com>
+  ~ License: MIT
+  -->
+
+<a href="javascript:" class="dropdown-item d-flex align-items-center"
+   (click)="extendedSelect.pickOption(option)"
+   [ngStyle]="option.esOptions.esOptionsGroup ? {'padding-left': 10 + ((option.esOptions.level + 1) * 10) + 'px'} : {}"
+   [ngClass]="{
+   active: option === extendedSelect.highlightedOption,
+   selected: extendedSelect.multiple && extendedSelect.isSelected(option)
+   }"
+>
+    <div *ngIf="extendedSelect.esBeforeOption">
+        <ng-container *ngTemplateOutlet="extendedSelect.esBeforeOption.template; context: {$implicit: option.item}">
+        </ng-container>
+    </div>
+    <div>
+        <ng-container *ngTemplateOutlet="option.esOptions.template; context: {$implicit: option.item}">
+        </ng-container>
+    </div>
+</a>

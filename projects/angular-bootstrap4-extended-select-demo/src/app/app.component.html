@@ -1,0 +1,482 @@
+<!--
+  ~ Angular Extended Select component.
+  ~ Copyright (c) 2016-2021 Rodziu <mateusz.rohde@gmail.com>
+  ~ License: MIT
+  -->
+
+<div class="loader d-flex align-items-center justify-content-center position-fixed" *ngIf="loading">
+    <i class="fa fa-circle-notch fa-spin fa-5x"></i>
+</div>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-3 col-xl-2">
+            <nav class="sticky-top mt-4">
+                <ul class="nav flex-column">
+                    <li class="nav-item" *ngFor="let n of nav">
+                        <a class="nav-link" href="#{{n.id}}">{{n.title}}</a>
+                        <ul class="flex-column">
+                            <li class="nav-item" *ngFor="let s of n.children">
+                                <a class="nav-link" href="#{{s.id}}">{{s.title}}</a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        <div class="col-md-9 col-xl-10 mb-5">
+            <section id="basic-example">
+                <h1 class="page-header">Basic example</h1>
+                <p>
+                    <code>extended-select</code> component creates a select control with additional
+                    features like option filtering and bootstrap4 custom-select compatible dropdown.
+                </p>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>Without extended-select</label>
+                                    <select class="custom-control custom-select" [(ngModel)]="basicModel">
+                                        <option *ngFor="let o of options" [ngValue]="o">{{o.word}}</option>
+                                    </select>
+                                </div>
+                                <pre>&lt;select class="custom-control custom-select" [(ngModel)]="word"&gt;
+    &lt;option *ngFor="let o of options" [ngValue]="o"&gt;{{'{{'}}o.word}}&lt;/option&gt;
+&lt;select&gt;</pre>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>With extended-select</label>
+                                    <extended-select [(ngModel)]="basicModel">
+                                        <ng-container *esOptions="let o of options">
+                                            {{o.word}}
+                                        </ng-container>
+                                    </extended-select>
+                                </div>
+                                <pre>&lt;<strong>extended-select</strong> [(ngModel)]="word"&gt;
+    &lt;ng-container <strong>*esOptions="let o of options"</strong>&gt;{{'{{'}}o.word}}&lt;/ng-container&gt;
+&lt;/<strong>extended-select</strong>&gt;</pre>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        Model value:
+                        <pre class="no-code">{{basicModel|json}}</pre>
+                    </div>
+                </div>
+            </section>
+            <section id="value">
+                <h1 class="page-header">Value by key</h1>
+                <p>
+                    Provide <code>value</code> input to <code>*esOptions</code>
+                    if you want a specific object key to be used as option value.
+                </p>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="form-group col-lg-6">
+                                <extended-select [(ngModel)]="valueModel">
+                                    <ng-container *esOptions="let o of options; value: 'id'">
+                                        {{o.word}}
+                                    </ng-container>
+                                </extended-select>
+                            </div>
+                        </div>
+                        <pre>&lt;extended-select [(ngModel)]="valueModel"&gt;
+    &lt;ng-container *esOptions="let o of options; <strong>value: 'id'</strong>"&gt;{{'{{'}}o.word}}&lt;/ng-container&gt;
+&lt;/extended-select&gt;</pre>
+                    </div>
+                    <div class="card-footer">
+                        Model value:
+                        <pre class="no-code">{{valueModel|json}}</pre>
+                    </div>
+                </div>
+            </section>
+            <section id="option-template">
+                <h1 class="page-header">Custom option template</h1>
+                <p>
+                    Thanks to <code>*esOptions</code> structural directive you can display options
+                    in any way you would like!
+                </p>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="form-group col-lg-6">
+                                <extended-select [(ngModel)]="customTemplateModel">
+                                    <ng-container *esOptions="let o of options">
+                                        <div class="badge badge-primary">{{o.word}}</div>
+                                    </ng-container>
+                                </extended-select>
+                            </div>
+                        </div>
+                        <pre>&lt;extended-select [(ngModel)]="customTemplateModel"&gt;
+    &lt;ng-container *esOptions="let o of options"&gt;
+        <strong>&lt;div class="badge badge-primary"&gt;{{'{{'}}o.word}}&lt;/div&gt;</strong>
+    &lt;/ng-container&gt;
+&lt;/extended-select&gt;</pre>
+                    </div>
+                </div>
+                <section id="before-option">
+                    <h2 class="page-header">Before option</h2>
+                    <p>
+                        In some cases you may need to display something before each option and current select value
+                        even if it's currently undefined.<br/>
+                        That's when <code>*esBeforeOption</code> directive comes to help. You can pass
+                        <code>options</code> input to determine the type of variable declared in <code>let-</code>.
+                        <br/>
+                        Please not that this value will be undefined, when there is currently no value selected.
+                    </p>
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="form-group col-lg-6">
+                                    <extended-select [(ngModel)]="beforeOptionModel">
+                                        <ng-container *esBeforeOption="let o; options: options">
+                                            <i class="fa fa-fw">
+                                                {{o ? o.word.substring(0, 1) : '_'}}
+                                            </i>
+                                        </ng-container>
+                                        <ng-container *esOptions="let o of options">
+                                            {{o.word}}
+                                        </ng-container>
+                                    </extended-select>
+                                </div>
+                            </div>
+                            <pre>&lt;extended-select [(ngModel)]="beforeOptionModel"&gt;
+    &lt;ng-container <strong>*esBeforeOption="let o; options: options"</strong>&gt;
+        &lt;i class="fa fa-fw"&gt;
+            <strong>{{'{'}}o ? o.word.substring(0, 1) : '_'}}</strong>
+        &lt;/i&gt;
+    &lt;/ng-container&gt;
+    &lt;ng-container *esOptions="let o of options"&gt;
+                                {{'{{'}}o.word}}
+    &lt;/ng-container&gt;
+&lt;/extended-select&gt;</pre>
+                        </div>
+                    </div>
+                </section>
+            </section>
+            <section id="multiple-select">
+                <h1 class="page-header">Multiple select</h1>
+                <p>
+                    Set <code>[multiple]</code> input to <code>true</code> to display extended-select in multiple mode
+                    that allows one to select multiple options (model becomes an array, like in standard select).<br/>
+                    Each selected option is displayed as separate badge.
+                </p>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-sm-6 form-group">
+                                <label>Without extended-select</label>
+                                <select class="custom-control custom-select" [(ngModel)]="multipleModel" multiple>
+                                    <option *ngFor="let o of options" [ngValue]="o">{{o.word}}</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-6 form-group">
+                                <label>With extended-select</label>
+                                <extended-select [(ngModel)]="multipleModel" [multiple]="true">
+                                    <ng-container *esOptions="let o of options">{{o.word}}</ng-container>
+                                </extended-select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <pre>&lt;select class="custom-control custom-select" [(ngModel)]="multiple" multiple&gt;
+    &lt;option *ngFor="let o of options" [ngValue]="o"&gt;{{'{{'}}o.word}}&lt;/option&gt;
+&lt;/select&gt;</pre>
+                            </div>
+                            <div class="col-sm-6">
+                                <pre>&lt;extended-select [(ngModel)]="multiple" <strong>[multiple]="true"</strong>&gt;
+    &lt;ng-container *esOptions="let o of options"&gt;{{'{{'}}o.word}}&lt;/ng-container&gt;
+&lt;/extended-select&gt;</pre>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        Model value:
+                        <pre class="no-code">{{multipleModel|json}}</pre>
+                    </div>
+                </div>
+            </section>
+            <section id="grouping">
+                <h1 class="page-header">Option groups</h1>
+                <p>
+                    Pass <code>group</code> input to <code>*esOptions</code> directive to display it as an option
+                    group (like standard select <code>&lt;optgroup&gt;</code>).<br/>
+                    You can wrap <code>*esOptions</code> in <code>*esOptionGroups</code> directive to create multiple
+                    option groups from an array.
+                </p>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="form-group col-lg-6">
+                                <extended-select [(ngModel)]="groupByModel">
+                                    <ng-container *esOptionGroups="let group of groups">
+                                        <ng-container *esOptions="let o of group.items; group: group.label">
+                                            {{o.word}}
+                                        </ng-container>
+                                    </ng-container>
+                                </extended-select>
+                            </div>
+                        </div>
+                        <pre>&lt;extended-select [(ngModel)]="groupByModel"&gt;
+    &lt;ng-container <strong>*esOptionGroups="let group of groups"</strong>&gt;
+        &lt;ng-container *esOptions="let o of group.items; <strong>group: group.label</strong>"&gt;
+                            {{'{{'}}o.word}}
+        &lt;/ng-container&gt;
+    &lt;/ng-container&gt;
+&lt;/extended-select&gt;</pre>
+                    </div>
+                </div>
+                <section id="nested-by">
+                    <h2 class="page-header">Nested by - multi-level groups</h2>
+                    <p>
+                        Create multi-level groups by passing <code>nestedBy</code> input to
+                        <code>*esOptionGroups</code> directive.<br/>
+                        It then iterates over <code>esOptionGroupsOf</code> tree, where <code>nestedBy</code> input
+                        indicates a tree branch property that contains nested items.
+                    </p>
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="form-group col-lg-6">
+                                    <extended-select [(ngModel)]="nestedByModel">
+                                        <ng-container *esOptionGroups="let group of nestedGroups; nestedBy: 'groups'">
+                                            <ng-container *esOptions="let o of group.items; group: group.label">
+                                                {{o}}
+                                            </ng-container>
+                                        </ng-container>
+                                    </extended-select>
+                                </div>
+                            </div>
+                            <pre>&lt;extended-select [(ngModel)]="nestedByModel"&gt;
+    &lt;ng-container *esOptionGroups="let group of nestedGroups; <strong>nestedBy: 'groups'</strong>"&gt;
+        &lt;ng-container *esOptions="let o of group.items; group: group.label"&gt;
+                                {{'{{'}}o}}
+        &lt;/ng-container&gt;
+    &lt;/ng-container&gt;
+&lt;/extended-select&gt;</pre>
+                        </div>
+                    </div>
+                </section>
+            </section>
+            <section id="resolve-on-search">
+                <h2 class="page-header">Resolve options on search</h2>
+                <p>
+                    <code>resolveOnSearch</code> is callback with signature:<br/>
+                    <code>resolveOnSearch(search: string, page: number): Observable&lt;IResolveOnSearchResult&gt;</code>
+                    <br/>
+                    If it's observable emits <code>IResolveOnSearchResult.hasNextPage</code>
+                    equal to <code>true</code> then a 'load more results' action is shown. Clicking on the
+                    'load more results'
+                    anchor causes the second parameter (<code>page</code>) of "resolveOnSearch" callback to
+                    be incremented
+                    (defaults to <code>1</code>).<br/>
+                    For multiple select it works best when combined with
+                    <a href="#type-to-search"><code>[typeToSearch]</code></a>.
+                </p>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="form-group col-lg-6">
+                                <extended-select [(ngModel)]="resolveOnSearchModel"
+                                                 [resolveOnSearch]="resolveOnSearch.bind(this)">
+                                    <ng-container *esOptions="let o of resolvedOptions">
+                                        {{o.word}}
+                                    </ng-container>
+                                </extended-select>
+                            </div>
+                        </div>
+                        <pre>&lt;extended-select [(ngModel)]="resolveOnSearchModel" <strong>[resolveOnSearch]="resolveOnSearch.bind(this)"</strong>&gt;
+    &lt;ng-container *esOptions="let o of resolvedOptions"&gt;{{'{{'}}o.word}}&lt;/ng-container&gt;
+&lt;/extended-select&gt;</pre>
+                    </div>
+                </div>
+            </section>
+            <section id="options">
+                <h2 class="page-header">Other options</h2>
+                <p>
+                    You can further customize <code>extended-select</code> behaviour by using a set of available
+                    options.
+                </p>
+                <div class="row mb-3">
+                    <div class="col-sm-6">
+                        <section id="type-to-search">
+                            <h3 class="page-header">
+                                Begin option filtering after typing some chars
+                            </h3>
+                            <p>
+                                Hide options until user types the required number of characters into search input.
+                            </p>
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <extended-select [(ngModel)]="typeToSearchModel" [typeToSearch]="2">
+                                            <ng-container *esOptions="let o of options">
+                                                {{o.word}}
+                                            </ng-container>
+                                        </extended-select>
+                                    </div>
+                                    <pre>&lt;extended-select [(ngModel)]="typeToSearch" <strong>[typeToSearch]="2"</strong>&gt;
+    &lt;ng-container *esOptions="let o of options"&gt;
+        {{'{{'}}o.word}}
+    &lt;/ng-container&gt;
+&lt;/extended-select&gt;</pre>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="col-sm-6">
+                        <section id="add-option">
+                            <h3 class="page-header">Allow user to add an option</h3>
+                            <p>
+                                <code>addOption</code> is callback with signature:
+                                <code>addOption?: (value: string): void</code><br/>
+                                This callback should add new option to options array and optionally
+                                add it's value to model.
+                            </p>
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <extended-select [(ngModel)]="addOptionModel"
+                                                         [addOption]="addOption.bind(this)">
+                                            <ng-container *esOptions="let o of emptyOptions">{{o.word}}</ng-container>
+                                        </extended-select>
+                                    </div>
+                                    <pre>&lt;extended-select [(ngModel)]="addOptionModel" <strong>[addOption]="addOption.bind(this)"</strong>&gt;
+        &lt;ng-container *esOptions="let o of emptyOptions"&gt;{{'{{'}}o.word}}&lt;/ng-container&gt;
+&lt;/extended-select&gt;</pre>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-6">
+                        <section id="deselect">
+                            <h3 class="page-header">Allow user to deselect an selected option</h3>
+                            <p>
+                                Set <code>[deselectable]</code> input to <code>true</code> to allow select clearing.
+                                <br/>
+                                You can provide a value that model will be set to upon deselect
+                                via <code>[deselectValue]</code> input.
+                            </p>
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <extended-select [(ngModel)]="deselectableModel" [deselectable]="true">
+                                            <ng-container *esOptions="let o of options">{{o.word}}</ng-container>
+                                        </extended-select>
+                                    </div>
+                                    <pre>&lt;extended-select [(ngModel)]="deselectableModel" <strong>[deselectable]="true"</strong>&gt;
+    &lt;ng-container *esOptions="let o of options"&gt;{{'{{'}}o.word}}&lt;/ng-container&gt;
+&lt;/extended-select&gt;</pre>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="col-sm-6">
+                        <section id="form-inline">
+                            <h3 class="page-header">Inline form support</h3>
+                            <p>
+                                <code>extended-select</code> fits well with bootstrap4 inline forms.
+                            </p>
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="form-inline">
+                                        <div class="form-group">
+                                            <label>Select an option</label>
+                                            <extended-select [(ngModel)]="inlineModel" class="ml-2">
+                                                <ng-container *esOptions="let o of options">{{o.word}}</ng-container>
+                                            </extended-select>
+                                        </div>
+                                    </div>
+                                    <pre>&lt;div class="form-inline"&gt;
+    &lt;div class="form-group"&gt;
+        &lt;label&gt;Select an option&lt;/label&gt;
+        &lt;extended-select [(ngModel)]="inlineModel" class="ml-2"&gt;
+            &lt;ng-container *esOptions="let o of options"&gt;{{'{{'}}o.word}}&lt;/ng-container&gt;
+        &lt;/extended-select&gt;
+    &lt;/div&gt;
+    &lt;/div&gt;</pre>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-6">
+                        <section id="disabled-state">
+                            <h3 class="page-header">Disabled state</h3>
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <extended-select [(ngModel)]="disabledModel" [disabled]="true">
+                                            <ng-container *esOptions="let o of options">{{o.word}}</ng-container>
+                                        </extended-select>
+                                    </div>
+                                    <pre>&lt;extended-select [(ngModel)]="disabledModel" <strong>[disabled]="true"</strong>&gt;
+    &lt;ng-container *esOptions="let o of options"&gt;{{'{{'}}o.word}}&lt;/ng-container&gt;
+&lt;/extended-select&gt;</pre>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="col-sm-6">
+                        <section id="custom-placeholder">
+                            <h3 class="page-header">Placeholder support</h3>
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <extended-select [(ngModel)]="placeholderModel" placeholder="Custom placeholder text">
+                                            <ng-container *esOptions="let o of options">{{o.word}}</ng-container>
+                                        </extended-select>
+                                    </div>
+                                    <pre>&lt;extended-select [(ngModel)]="placeholderModel" <strong>placeholder="Custom placeholder text"</strong>&gt;
+    &lt;ng-container *esOptions="let o of options"&gt;{{'{{'}}o.word}}&lt;/ng-container&gt;
+&lt;/extended-select&gt;</pre>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-6">
+                        <section id="size-sm">
+                            <h3 class="page-header">Size - small</h3>
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <extended-select [(ngModel)]="sizingModel" [size]="'sm'">
+                                            <ng-container *esOptions="let o of options">{{o.word}}</ng-container>
+                                        </extended-select>
+                                    </div>
+                                    <pre>&lt;extended-select [(ngModel)]="sizingModel" <strong>[size]="sm"</strong>&gt;
+    &lt;ng-container *esOptions="let o of options"&gt;{{'{{'}}o.word}}&lt;/ng-container&gt;
+&lt;/extended-select&gt;</pre>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="col-sm-6">
+                        <section id="size-lg">
+                            <h3 class="page-header">Size - large</h3>
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <extended-select [(ngModel)]="sizingModel" [size]="'lg'">
+                                            <ng-container *esOptions="let o of options">{{o.word}}</ng-container>
+                                        </extended-select>
+                                    </div>
+                                    <pre>&lt;extended-select [(ngModel)]="sizingModel" <strong>[size]="lg"</strong>&gt;
+    &lt;ng-container *esOptions="let o of options"&gt;{{'{{'}}o.word}}&lt;/ng-container&gt;
+&lt;/extended-select&gt;</pre>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
