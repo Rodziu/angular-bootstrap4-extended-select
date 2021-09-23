@@ -4,7 +4,7 @@
  * License: MIT
  */
 import {
-    Component,
+    Component, DoCheck,
     HostBinding,
     Input, OnInit,
     QueryList,
@@ -19,7 +19,7 @@ import {IExtendedSelectComponent} from '../extended-select/extended-select-compo
     selector: 'es-option-group',
     templateUrl: './es-option-group.component.html'
 })
-export class EsOptionGroupComponent<T> implements OnInit, IEsOptionGroupComponent<T> {
+export class EsOptionGroupComponent<T> implements OnInit, DoCheck, IEsOptionGroupComponent<T> {
     @Input() extendedSelect!: IExtendedSelectComponent<T>;
 
     @Input() esOptions!: EsOptionsDirective<T>;
@@ -29,12 +29,20 @@ export class EsOptionGroupComponent<T> implements OnInit, IEsOptionGroupComponen
 
     @ViewChildren('esOption') optionComponents?: QueryList<IEsOptionComponent<T>>;
 
+    ngDoCheck(): void {
+        if (this.extendedSelect.resolveOnSearch) {
+            this._updateVisibility();
+        }
+    }
+
     ngOnInit(): void {
+        this._updateVisibility();
+    }
+
+    private _updateVisibility(): void {
         const searchValue = typeof this.extendedSelect.searchControl.value === 'string'
             ? this.extendedSelect.searchControl.value
             : '';
-        if (searchValue.length < this.extendedSelect.typeToSearch) {
-            this.hidden = true;
-        }
+        this.hidden = searchValue.length < this.extendedSelect.typeToSearch;
     }
 }

@@ -282,20 +282,25 @@ export class ExtendedSelectComponent<T = unknown> implements AfterViewInit, Cont
                     this._lastResolve.subscription = null;
                 }
             }
-            this.loading = true;
-            this._lastResolve.timeout = setTimeout(() => {
-                this._lastResolve.timeout = null;
-                if (typeof this.resolveOnSearch === 'function') {
-                    this._lastResolve.subscription = this.resolveOnSearch(this.searchControl.value, page || 1)
-                        .pipe(first())
-                        .subscribe((result) => {
-                            this.loading = false;
-                            this._lastResolve.subscription = null;
-                            this.hasNextPage = result.hasNextPage || false;
-                            this.page = page || 1;
-                        })
-                }
-            }, timeout);
+
+            if (
+                this.searchControl.value.length >= (this.typeToSearch || 0)
+            ) {
+                this.loading = true;
+                this._lastResolve.timeout = setTimeout(() => {
+                    this._lastResolve.timeout = null;
+                    if (typeof this.resolveOnSearch === 'function') {
+                        this._lastResolve.subscription = this.resolveOnSearch(this.searchControl.value, page || 1)
+                            .pipe(first())
+                            .subscribe((result) => {
+                                this.loading = false;
+                                this._lastResolve.subscription = null;
+                                this.hasNextPage = result.hasNextPage || false;
+                                this.page = page || 1;
+                            })
+                    }
+                }, timeout);
+            }
         }
     }
 
