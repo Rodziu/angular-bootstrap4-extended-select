@@ -11,8 +11,9 @@ import {EsOptionsDirective, IEsOption} from '../es-options.directive';
 import {QueryList} from '@angular/core';
 import {IEsOptionGroupComponent} from '../es-option-group/es-option-group-component.interface';
 
-export interface IResolveOnSearchResult {
-    hasNextPage?: boolean
+export interface IResolveOnSearchResult<T = unknown> {
+    hasNextPage?: boolean,
+    visibleOptions?: T[]
 }
 
 export interface IExtendedSelectComponent<T = unknown> {

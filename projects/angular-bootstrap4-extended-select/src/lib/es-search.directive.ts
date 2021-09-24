@@ -43,7 +43,8 @@ export class EsSearchDirective<T> implements OnInit {
             return;
         }
 
-        const visibleOptions = this.extendedSelect.getVisibleOptions();
+        const visibleOptions = this.extendedSelect.getVisibleOptions()
+            .filter((option) => !this.extendedSelect.isSelected(option));
 
         switch (e.key) {
             case 'ArrowDown':

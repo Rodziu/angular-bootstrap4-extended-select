@@ -266,20 +266,23 @@
                     <code>resolveOnSearch</code> is callback with signature:<br/>
                     <code>resolveOnSearch(search: string, page: number): Observable&lt;IResolveOnSearchResult&gt;</code>
                     <br/>
+                    It should update options collection with resolved options. Options visibility is determined by
+                    visibleOptions property emitted by it's observable.
+                    <br/>
                     If it's observable emits <code>IResolveOnSearchResult.hasNextPage</code>
                     equal to <code>true</code> then a 'load more results' action is shown. Clicking on the
                     'load more results'
                     anchor causes the second parameter (<code>page</code>) of "resolveOnSearch" callback to
                     be incremented
                     (defaults to <code>1</code>).<br/>
-                    For multiple select it works best when combined with
+                    It works best when combined with
                     <a href="#type-to-search"><code>[typeToSearch]</code></a>.
                 </p>
                 <div class="card">
                     <div class="card-body">
                         <div class="row">
                             <div class="form-group col-lg-6">
-                                <extended-select [(ngModel)]="resolveOnSearchModel"
+                                <extended-select [(ngModel)]="resolveOnSearchModel" [typeToSearch]="1"
                                                  [resolveOnSearch]="resolveOnSearch.bind(this)">
                                     <ng-container *esOptions="let o of resolvedOptions">
                                         {{o.word}}
@@ -287,7 +290,7 @@
                                 </extended-select>
                             </div>
                         </div>
-                        <pre>&lt;extended-select [(ngModel)]="resolveOnSearchModel" <strong>[resolveOnSearch]="resolveOnSearch.bind(this)"</strong>&gt;
+                        <pre>&lt;extended-select [(ngModel)]="resolveOnSearchModel" [typeToSearch]="1" <strong>[resolveOnSearch]="resolveOnSearch.bind(this)"</strong>&gt;
     &lt;ng-container *esOptions="let o of resolvedOptions"&gt;{{'{{'}}o.word}}&lt;/ng-container&gt;
 &lt;/extended-select&gt;</pre>
                     </div>
@@ -319,7 +322,7 @@
                                     </div>
                                     <pre>&lt;extended-select [(ngModel)]="typeToSearch" <strong>[typeToSearch]="2"</strong>&gt;
     &lt;ng-container *esOptions="let o of options"&gt;
-        {{'{{'}}o.word}}
+                                        {{'{{'}}o.word}}
     &lt;/ng-container&gt;
 &lt;/extended-select&gt;</pre>
                                 </div>
@@ -428,7 +431,8 @@
                             <div class="card">
                                 <div class="card-body">
                                     <div class="form-group">
-                                        <extended-select [(ngModel)]="placeholderModel" placeholder="Custom placeholder text">
+                                        <extended-select [(ngModel)]="placeholderModel"
+                                                         placeholder="Custom placeholder text">
                                             <ng-container *esOptions="let o of options">{{o.word}}</ng-container>
                                         </extended-select>
                                     </div>

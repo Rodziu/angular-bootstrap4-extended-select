@@ -19,7 +19,8 @@ import {EsOptionsDirective, IEsOption} from '../es-options.directive';
 import {EsBeforeOptionDirective} from '../es-before-option.directive';
 import {IEsOptionGroupComponent} from '../es-option-group/es-option-group-component.interface';
 import {IEsOptionComponent} from '../es-option/es-option-component.interface';
-import {IResolveOnSearchResult} from './extended-select-component.interface';
+import {IExtendedSelectComponent, IResolveOnSearchResult} from './extended-select-component.interface';
+import isEqual from 'lodash.isequal';
 
 @Component({
     selector: 'extended-select',
@@ -32,12 +33,14 @@ import {IResolveOnSearchResult} from './extended-select-component.interface';
         }
     ]
 })
-export class ExtendedSelectComponent<T = unknown> implements AfterViewInit, ControlValueAccessor, OnDestroy, OnInit {
+export class ExtendedSelectComponent<T = unknown> implements AfterViewInit, OnInit, OnDestroy,
+    ControlValueAccessor, IExtendedSelectComponent<T> {
+
     @Input() multiple = false;
     @Input() typeToSearch: number;
     @Input() searchByValue: boolean;
     @Input() placeholder?: string;
-    @Input() resolveOnSearch?: (value: string, page: number) => Observable<IResolveOnSearchResult>;
+    @Input() resolveOnSearch?: (value: string, page: number) => Observable<IResolveOnSearchResult<T>>;
     @Input() addOption?: (value: string) => void;
     @Input() deselectable = false;
     @Input() deselectValue?: unknown;
@@ -64,6 +67,7 @@ export class ExtendedSelectComponent<T = unknown> implements AfterViewInit, Cont
     currentValue?: unknown;
     currentOption?: IEsOption<T>;
     currentOptions?: IEsOption<T>[];
+    visibleOptions?: T[]
 
     loading = false;
     searchControl = new FormControl();
@@ -144,30 +148,12 @@ export class ExtendedSelectComponent<T = unknown> implements AfterViewInit, Cont
 
         this.searchControl.valueChanges
             .pipe(takeUntil(this._destroy$))
-            .subscribe((value) => {
+            .subscribe(() => {
                 this.hasNextPage = false;
                 if (this.resolveOnSearch) {
                     this.resolveOptions();
                 } else {
-                    this._searchOptions();
-                    if (typeof value === 'string' && value.length) {
-                        const found = this.optionGroups?.find((esOptionGroup) => {
-                            if (!esOptionGroup.hidden) {
-                                const option = esOptionGroup.optionComponents?.find((x) => !x.hidden);
-                                if (option) {
-                                    this.highlightedOption = option.option;
-                                }
-                                return !!option;
-                            }
-                            return false;
-                        });
-
-                        if (!found) {
-                            this.highlightedOption = undefined;
-                        }
-                    } else {
-                        this.highlightedOption = undefined;
-                    }
+                    this._updateOptionsVisibility();
                 }
             });
     }
@@ -272,35 +258,42 @@ export class ExtendedSelectComponent<T = unknown> implements AfterViewInit, Cont
 
     resolveOptions(page?: number): void {
         this.hasNextPage = false;
-        if (typeof this.searchControl.value === 'string' && this.searchControl.value.length) {
-            const timeout = this.loading ? 750 : 0;
-            if (this._lastResolve.timeout !== null) {
-                clearTimeout(this._lastResolve.timeout);
-                this._lastResolve.timeout = null;
-                if (this._lastResolve.subscription !== null) {
-                    this._lastResolve.subscription.unsubscribe();
-                    this._lastResolve.subscription = null;
-                }
+        const timeout = this.loading ? 750 : 0;
+        if (this._lastResolve.timeout !== null) {
+            clearTimeout(this._lastResolve.timeout);
+            this._lastResolve.timeout = null;
+            if (this._lastResolve.subscription !== null) {
+                this._lastResolve.subscription.unsubscribe();
+                this._lastResolve.subscription = null;
             }
+        }
 
-            if (
-                this.searchControl.value.length >= (this.typeToSearch || 0)
-            ) {
-                this.loading = true;
-                this._lastResolve.timeout = setTimeout(() => {
-                    this._lastResolve.timeout = null;
-                    if (typeof this.resolveOnSearch === 'function') {
-                        this._lastResolve.subscription = this.resolveOnSearch(this.searchControl.value, page || 1)
-                            .pipe(first())
-                            .subscribe((result) => {
-                                this.loading = false;
-                                this._lastResolve.subscription = null;
-                                this.hasNextPage = result.hasNextPage || false;
-                                this.page = page || 1;
-                            })
-                    }
-                }, timeout);
-            }
+        if (
+            typeof this.searchControl.value === 'string'
+            && this.searchControl.value.length
+            && this.searchControl.value.length >= (this.typeToSearch || 0)
+        ) {
+            this.loading = true;
+            this._lastResolve.timeout = setTimeout(() => {
+                this._lastResolve.timeout = null;
+                if (typeof this.resolveOnSearch === 'function') {
+                    this._lastResolve.subscription = this.resolveOnSearch(this.searchControl.value, page || 1)
+                        .pipe(first())
+                        .subscribe((result) => {
+                            this.loading = false;
+                            this._lastResolve.subscription = null;
+                            this.hasNextPage = result.hasNextPage || false;
+                            this.visibleOptions = result.visibleOptions || undefined;
+                            this.page = page || 1;
+                            setTimeout(() => {
+                                this._updateOptionsVisibility();
+                            });
+                        })
+                }
+            }, timeout);
+        } else if (this.visibleOptions) {
+            this.visibleOptions.length = 0;
+            this._updateOptionsVisibility();
         }
     }
 
@@ -348,12 +341,14 @@ export class ExtendedSelectComponent<T = unknown> implements AfterViewInit, Cont
         }
     }
 
-    private _searchOptions(): void {
+    private _updateOptionsVisibility(): void {
         const searchValue = typeof this.searchControl.value === 'string' ? this.searchControl.value : '';
 
         if (!this.optionGroups) {
             return;
         }
+
+        let firstVisibleOption: IEsOption<T> | undefined;
 
         const filterGroup = (esOptionGroup: IEsOptionGroupComponent<T>): boolean => {
             // search in options
@@ -362,7 +357,10 @@ export class ExtendedSelectComponent<T = unknown> implements AfterViewInit, Cont
             if (searchValue.length >= this.typeToSearch && esOptionGroup.optionComponents) {
                 esOptionGroup.optionComponents
                     .forEach((esOption) => {
-                        if (this.searchByValue) {
+                        if (this.resolveOnSearch) {
+                            esOption.hidden = Array.isArray(this.visibleOptions)
+                                && !this.visibleOptions.find((value) => isEqual(esOption.option.getValue(), value));
+                        } else if (this.searchByValue) {
                             const value = esOption.option.getValue();
                             esOption.hidden = !(
                                 (typeof value === 'string' && value.includes(searchValue))
@@ -378,6 +376,9 @@ export class ExtendedSelectComponent<T = unknown> implements AfterViewInit, Cont
 
                         if (!esOption.hidden) {
                             allOptionsHidden = false;
+                            if (!firstVisibleOption && !this.isSelected(esOption.option)) {
+                                firstVisibleOption = esOption.option;
+                            }
                         }
                     });
             }
@@ -397,6 +398,12 @@ export class ExtendedSelectComponent<T = unknown> implements AfterViewInit, Cont
         this.optionGroups
             .filter((x) => x.esOptions.level === 0)
             .forEach(filterGroup);
+
+        if (searchValue.length && firstVisibleOption) {
+            this.highlightedOption = firstVisibleOption;
+        } else {
+            this.highlightedOption = undefined;
+        }
     }
 
     private _updateCurrentOption(value: unknown): void {
@@ -404,10 +411,11 @@ export class ExtendedSelectComponent<T = unknown> implements AfterViewInit, Cont
         this.currentOptions = undefined;
 
         if (!this.multiple) {
-            this.currentOption = this._findOption((option) => option.getValue() === value);
+            this.currentOption = this._findOption((option) => isEqual(option.getValue(), value));
         } else if (Array.isArray(value)) {
             this.currentOptions = this._filterOptions((option) => {
-                return value.includes(option.getValue());
+                const optionValue = option.getValue();
+                return !!value.find((item) => isEqual(optionValue, item));
             });
         }
     }

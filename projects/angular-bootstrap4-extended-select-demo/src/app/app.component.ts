@@ -116,8 +116,8 @@ export class AppComponent {
         });
     }
 
-    resolveOnSearch(search: string, page: number): Observable<IResolveOnSearchResult> {
-        return new Observable<IResolveOnSearchResult>((subscriber) => {
+    resolveOnSearch(search: string, page: number): Observable<IResolveOnSearchResult<IExample>> {
+        return new Observable<IResolveOnSearchResult<IExample>>((subscriber) => {
             search = search.toLowerCase();
             const results: IExample[] = [];
             let hasNextPage = false;
@@ -128,12 +128,17 @@ export class AppComponent {
                         return true;
                     }
                     results.push(option);
+                    if (!this.resolvedOptions.includes(option)) {
+                        this.resolvedOptions.push(option);
+                    }
                 }
                 return false;
             });
 
-            this.resolvedOptions = results;
-            subscriber.next({hasNextPage});
+            this.resolvedOptions = this.resolvedOptions.sort((a, b) => {
+                return a.word.localeCompare(b.word);
+            });
+            subscriber.next({hasNextPage, visibleOptions: results});
             subscriber.complete();
         });
     }

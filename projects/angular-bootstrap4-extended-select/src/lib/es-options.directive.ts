@@ -71,17 +71,24 @@ export class EsOptionsDirective<T, U extends Array<T> = Array<T>> implements DoC
             const changes = this._differ.diff(this.esOptionsOf);
             if (changes) {
                 const currentOptions = this.options.value;
+                let cnt = 0;
                 changes.forEachOperation((record, adjustedPreviousIndex, currentIndex) => {
+                    cnt++;
                     if (record.previousIndex === null) {
-                        currentOptions.push(this._parseOption(record.item));
+                        currentOptions.splice(
+                            currentIndex === null ? -1 : currentIndex, 0,
+                            this._parseOption(record.item)
+                        );
                     } else if (currentIndex === null) {
-                        currentOptions.splice(record.previousIndex, 1);
+                        currentOptions.splice(
+                            adjustedPreviousIndex === null ? 0 : adjustedPreviousIndex, 1
+                        );
                     } else if (adjustedPreviousIndex !== null) {
                         const item = currentOptions[adjustedPreviousIndex];
                         currentOptions.splice(adjustedPreviousIndex, 1);
                         currentOptions.splice(currentIndex, 0, item);
                     }
-                })
+                });
                 this.options.next(currentOptions);
             }
         }
