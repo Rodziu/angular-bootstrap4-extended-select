@@ -25,6 +25,7 @@ import isEqual from 'lodash.isequal';
 @Component({
     selector: 'extended-select',
     templateUrl: './extended-select.component.html',
+    styleUrls: ['./extended-select.component.scss'],
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,

@@ -3,18 +3,13 @@
  * Copyright (c) 2016-2021 Rodziu <mateusz.rohde@gmail.com>
  * License: MIT
  */
-@import "~node_modules/bootstrap/scss/functions";
-@import "~node_modules/bootstrap/scss/mixins/border-radius";
-@import "~node_modules/bootstrap/scss/variables";
+@import "node_modules/bootstrap/scss/functions";
+@import "node_modules/bootstrap/scss/mixins/border-radius";
+@import "node_modules/bootstrap/scss/variables";
 
 $spacer-1: map_get($spacers, 1);
 
-extended-select {
-  &.custom-select-lg, &.custom-select-sm {
-    padding: 0;
-  }
-}
-.angular-extended-select {
+:host > .custom-select {
   cursor: pointer;
   height: auto;
   text-align: left;
@@ -83,10 +78,6 @@ extended-select {
     }
   }
 
-  before-option {
-    margin-right: $spacer-1;
-  }
-
   .dropdown-menu {
     cursor: auto;
     width: calc(100% + 2px);
@@ -99,19 +90,17 @@ extended-select {
       overflow-x: hidden;
     }
 
-    .dropdown-item, .dropdown-item-text, .dropdown-header {
+    >>> .dropdown-item, .dropdown-item-text, .dropdown-header {
       padding: 3px 10px;
     }
-    extended-select-search {
-      white-space: normal;
-    }
 
-    .selected {
+    >>> .selected {
       background: transparent !important;
       color: #ccc;
     }
   }
 }
-.form-inline .angular-extended-select {
+
+.form-inline :host > .custom-select {
   min-width: 200px;
 }
