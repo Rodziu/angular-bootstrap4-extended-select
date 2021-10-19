@@ -29,7 +29,7 @@
             </div>
             <div [hidden]="isOpen" class="text-nowrap">
                 <span *ngIf="!currentOption" class="text-nowrap placeholder">{{placeholder}}</span>
-                <span *ngIf="currentOption">
+                <span *ngIf="currentOption" #currentOptionHTML>
                     <ng-container *ngTemplateOutlet="currentOption.esOptions.template; context: {$implicit: currentOption.item}">
                     </ng-container>
                 </span>

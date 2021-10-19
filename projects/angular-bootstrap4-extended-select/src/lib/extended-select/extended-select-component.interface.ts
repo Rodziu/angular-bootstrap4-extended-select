@@ -8,7 +8,7 @@ import {EsBeforeOptionDirective} from '../es-before-option.directive';
 import {BehaviorSubject, Observable} from 'rxjs';
 import {FormControl} from '@angular/forms';
 import {EsOptionsDirective, IEsOption} from '../es-options.directive';
-import {QueryList} from '@angular/core';
+import {ElementRef, QueryList} from '@angular/core';
 import {IEsOptionGroupComponent} from '../es-option-group/es-option-group-component.interface';
 
 export interface IResolveOnSearchResult<T = unknown> {
@@ -28,6 +28,7 @@ export interface IExtendedSelectComponent<T = unknown> {
     size?: 'sm' | 'lg';
     esOptionsList?: QueryList<EsOptionsDirective<T>>;
     esBeforeOption?: EsBeforeOptionDirective<T>;
+    currentOptionHTML?: ElementRef<HTMLElement>;
     optionGroups?: QueryList<IEsOptionGroupComponent<T>>;
     isOpen$: BehaviorSubject<boolean>;
     isOpen: boolean;

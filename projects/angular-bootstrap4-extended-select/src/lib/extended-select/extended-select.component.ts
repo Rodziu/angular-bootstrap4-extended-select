@@ -6,10 +6,10 @@
 import {
     AfterViewInit,
     Component, ContentChild,
-    ContentChildren,
+    ContentChildren, ElementRef,
     Input,
     OnDestroy, OnInit,
-    QueryList, ViewChildren,
+    QueryList, ViewChild, ViewChildren,
 } from '@angular/core';
 import {BehaviorSubject, Observable, Subject, Subscription} from 'rxjs';
 import {ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR} from '@angular/forms';
@@ -49,6 +49,8 @@ export class ExtendedSelectComponent<T = unknown> implements AfterViewInit, OnIn
 
     @ContentChildren(EsOptionsDirective, {descendants: true}) esOptionsList?: QueryList<EsOptionsDirective<T>>;
     @ContentChild(EsBeforeOptionDirective) esBeforeOption?: EsBeforeOptionDirective<T>;
+
+    @ViewChild('currentOptionHTML') currentOptionHTML?: ElementRef<HTMLElement>;
 
     @ViewChildren('esOptionGroup') optionGroups?: QueryList<IEsOptionGroupComponent<T>>;
     private _optionGroupChildReferences = new Map<IEsOptionGroupComponent<T>, IEsOptionGroupComponent<T>[]>();

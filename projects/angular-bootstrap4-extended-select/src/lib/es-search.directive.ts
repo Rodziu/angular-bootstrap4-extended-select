@@ -28,10 +28,7 @@ export class EsSearchDirective<T> implements OnInit {
         if (this.extendedSelect.multiple) {
             this.placeholder = !this.extendedSelect.currentOptions?.length ? this.extendedSelect.placeholder : '';
         } else {
-            const span = this.elementRef.nativeElement.parentElement?.querySelector('span');
-            if (span) {
-                this.placeholder = (span.textContent || '').trim();
-            }
+            this.placeholder = this.extendedSelect.currentOptionHTML?.nativeElement.textContent?.trim() || '';
         }
         this.elementRef.nativeElement.focus();
     }
