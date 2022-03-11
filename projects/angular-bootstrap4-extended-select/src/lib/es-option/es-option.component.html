@@ -6,7 +6,7 @@
 
 <a href="javascript:" class="dropdown-item d-flex align-items-center"
    (click)="extendedSelect.pickOption(option)"
-   [ngStyle]="option.esOptions.esOptionsGroup ? {'padding-left': 10 + ((option.esOptions.level + 1) * 10) + 'px'} : {}"
+   [ngStyle]="{'padding-left': 10 + ((option.esOptions.level + (option.esOptions.esOptionsGroup ? 1 : 0)) * 10) + 'px'}"
    [ngClass]="{
    active: option === extendedSelect.highlightedOption,
    selected: extendedSelect.multiple && extendedSelect.isSelected(option)

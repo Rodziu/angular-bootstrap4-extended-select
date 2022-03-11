@@ -234,7 +234,8 @@
                         Create multi-level groups by passing <code>nestedBy</code> input to
                         <code>*esOptionGroups</code> directive.<br/>
                         It then iterates over <code>esOptionGroupsOf</code> tree, where <code>nestedBy</code> input
-                        indicates a tree branch property that contains nested items.
+                        indicates a tree branch property that contains nested items.<br/>
+                        You may omit <code>group</code> input of <code>*esOptions</code> directive to display options tree without labels.
                     </p>
                     <div class="card">
                         <div class="card-body">
@@ -252,7 +253,7 @@
                             <pre>&lt;extended-select [(ngModel)]="nestedByModel"&gt;
     &lt;ng-container *esOptionGroups="let group of nestedGroups; <strong>nestedBy: 'groups'</strong>"&gt;
         &lt;ng-container *esOptions="let o of group.items; group: group.label"&gt;
-                                {{'{{'}}o}}
+            {{'{{'}}o}}
         &lt;/ng-container&gt;
     &lt;/ng-container&gt;
 &lt;/extended-select&gt;</pre>
