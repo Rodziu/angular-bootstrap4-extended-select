@@ -233,22 +233,27 @@ export class ExtendedSelectComponent<T = unknown> implements AfterViewInit, OnIn
             return;
         }
 
+        let newValue;
+
         if (this.multiple) {
             this.currentOptions = this._filterOptions((option) => {
                 return pickedOption === option || this.isSelected(option);
             });
-            this.currentValue = this.currentOptions?.map((o) => o.getValue());
+            newValue = this.currentOptions?.map((o) => o.getValue());
             this.highlightedOption = undefined;
             if (this.searchControl.value) {
                 this.searchControl.setValue('');
             }
         } else {
             this.isOpen = false;
-            this.currentValue = pickedOption.getValue();
+            newValue = pickedOption.getValue();
             this.currentOption = pickedOption;
         }
 
-        this._onChange(this.currentValue);
+        if (!isEqual(this.currentValue, newValue)) {
+            this.currentValue = newValue;
+            this._onChange(this.currentValue);
+        }
         this.hasNextPage = false;
     }
 
