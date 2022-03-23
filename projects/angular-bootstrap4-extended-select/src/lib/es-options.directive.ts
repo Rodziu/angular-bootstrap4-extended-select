@@ -37,7 +37,7 @@ export interface IEsOptionsContext<T> {
 })
 export class EsOptionsDirective<T, U extends Array<T> = Array<T>> implements DoCheck {
     @Input() esOptionsOf?: U;
-    @Input() esOptionsValue?: U extends (infer S)[] ? keyof S : never;
+    @Input() esOptionsValue?: U extends (infer S)[] ? keyof S : string;
     @Input() esOptionsGroup?: string;
 
     options = new BehaviorSubject<IEsOption<T>[]>([]);
@@ -71,9 +71,7 @@ export class EsOptionsDirective<T, U extends Array<T> = Array<T>> implements DoC
             const changes = this._differ.diff(this.esOptionsOf);
             if (changes) {
                 const currentOptions = this.options.value;
-                let cnt = 0;
                 changes.forEachOperation((record, adjustedPreviousIndex, currentIndex) => {
-                    cnt++;
                     if (record.previousIndex === null) {
                         currentOptions.splice(
                             currentIndex === null ? -1 : currentIndex, 0,
