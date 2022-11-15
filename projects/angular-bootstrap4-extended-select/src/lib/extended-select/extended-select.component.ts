@@ -350,7 +350,8 @@ export class ExtendedSelectComponent<T = unknown> implements AfterViewInit, OnIn
     }
 
     private _updateOptionsVisibility(): void {
-        const searchValue = typeof this.searchControl.value === 'string' ? this.searchControl.value : '';
+        const searchValue = typeof this.searchControl.value === 'string'
+            ? this.searchControl.value.toLowerCase() : '';
 
         if (!this.optionGroups) {
             return;
@@ -371,7 +372,7 @@ export class ExtendedSelectComponent<T = unknown> implements AfterViewInit, OnIn
                         } else if (this.searchByValue) {
                             const value = esOption.option.getValue();
                             esOption.hidden = !(
-                                (typeof value === 'string' && value.includes(searchValue))
+                                (typeof value === 'string' && value.toLowerCase().includes(searchValue))
                                 || (
                                     typeof value === 'object'
                                     && value !== null
