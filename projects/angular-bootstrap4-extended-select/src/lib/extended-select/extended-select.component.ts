@@ -326,6 +326,8 @@ export class ExtendedSelectComponent<T = unknown> implements AfterViewInit, OnIn
                 this.addOption(this.searchControl.value);
                 if (!this.multiple) {
                     this.isOpen = false;
+                } else if (this.searchControl.value) {
+                    this.searchControl.setValue('');
                 }
             }
         }
